@@ -1,0 +1,136 @@
+.educational-values {
+  padding: 82px 22px;
+  background: #E8F3ED;
+}
+
+.educational-values-container {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
+  gap: 72px;
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.educational-values-intro {
+  align-self: start;
+}
+
+.educational-values-intro > span {
+  display: inline-block;
+  margin-bottom: 13px;
+  color: var(--gold);
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.educational-values-intro h2 {
+  margin: 0 0 20px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.06;
+}
+
+.educational-values-intro > p {
+  color: #4f744e;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.educational-values-intro blockquote {
+  margin: 32px 0 0;
+  padding: 22px 0 22px 24px;
+  border-left: 3px solid var(--gold);
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.educational-values-list {
+  border-top: 1px solid rgba(13, 90, 55, 0.22);
+}
+
+.educational-value {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 20px;
+  padding: 23px 8px;
+  border-bottom: 1px solid rgba(13, 90, 55, 0.18);
+  transition: padding-left 0.22s ease, background-color 0.22s ease;
+}
+
+.educational-value:hover {
+  padding-left: 18px;
+  background: rgba(252, 247, 241, 0.38);
+}
+
+.educational-value > span {
+  color: var(--gold);
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.educational-value h3 {
+  margin: 0 0 7px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.educational-value p {
+  color: #4f744e;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .educational-values {
+    padding: 60px 18px;
+  }
+
+  .educational-values-container {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .educational-values-intro h2 {
+    font-size: 40px;
+  }
+
+  .educational-values-intro > p {
+    max-width: 680px;
+  }
+}
+
+@media (max-width: 560px) {
+  .educational-values-intro h2 {
+    font-size: 32px;
+  }
+
+  .educational-values-intro blockquote {
+    font-size: 18px;
+  }
+
+  .educational-value {
+    grid-template-columns: 42px 1fr;
+    gap: 12px;
+  }
+
+  .educational-value h3 {
+    font-size: 20px;
+  }
+
+  .educational-value p {
+    font-size: 14px;
+  }
+}

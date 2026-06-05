@@ -1,0 +1,269 @@
+.ief-page {
+  background: #FCF7F1;
+}
+
+.ief-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.88fr);
+  gap: 62px;
+  align-items: center;
+  max-width: 1280px;
+  min-height: 610px;
+  margin: 0 auto;
+  padding: 54px 32px 68px;
+  text-align: left;
+}
+
+.ief-back {
+  margin-bottom: 64px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4f744e;
+  font: 700 13px/1.2 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+.ief-back::before {
+  content: '←';
+  margin-right: 9px;
+}
+
+.ief-hero-content > span,
+.ief-services header > span,
+.ief-process span {
+  display: block;
+  margin-bottom: 13px;
+  color: var(--gold);
+  font: 800 13px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.ief-hero h1 {
+  max-width: 650px;
+  margin: 0 0 22px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 58px;
+  font-weight: 700;
+  line-height: 1.04;
+}
+
+.ief-hero-content > p {
+  max-width: 620px;
+  color: #4f744e;
+  font: 400 18px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.ief-hero-cta,
+.ief-process button {
+  min-height: 48px;
+  margin-top: 30px;
+  padding: 0 25px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 800 14px/1 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+.ief-hero-visual {
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.ief-hero-visual img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+.ief-services {
+  padding: 82px 22px;
+  background: #E8F3ED;
+}
+
+.ief-services > header {
+  max-width: 850px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.ief-services h2,
+.ief-process h2 {
+  margin: 0 0 18px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+.ief-services > header p,
+.ief-process > p {
+  color: #4f744e;
+  font: 400 17px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.ief-services-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.ief-service {
+  padding: 34px;
+  border: 1px solid rgba(13, 90, 55, 0.17);
+  border-radius: 8px;
+  background: #FCF7F1;
+  text-align: left;
+}
+
+.ief-service-heading {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 17px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+.ief-service-heading > span {
+  color: var(--gold);
+  font: 700 26px/1 'Playfair Display', serif;
+}
+
+.ief-service h3 {
+  margin: 0 0 7px;
+  color: var(--green-primary);
+  font: 700 29px/1.08 'Playfair Display', serif;
+}
+
+.ief-service-heading p,
+.ief-service-description,
+.ief-service li,
+.ief-service-note {
+  color: #4f744e;
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
+
+.ief-service-heading p {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.ief-service-description {
+  margin-bottom: 22px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.ief-service ul {
+  display: grid;
+  gap: 11px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.ief-service li {
+  position: relative;
+  padding-left: 24px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.ief-service li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.ief-service-note {
+  padding-top: 18px;
+  border-top: 1px solid rgba(13, 90, 55, 0.14);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.ief-process {
+  display: grid;
+  grid-template-columns: 0.95fr 1.15fr auto;
+  gap: 42px;
+  align-items: center;
+  padding: 58px max(22px, calc((100vw - 1180px) / 2));
+  background: #FCF7F1;
+  text-align: left;
+}
+
+.ief-process h2 {
+  margin-bottom: 0;
+  font-size: 34px;
+}
+
+.ief-process button {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .ief-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .ief-hero-visual {
+    max-width: 620px;
+  }
+
+  .ief-services-list,
+  .ief-process {
+    grid-template-columns: 1fr;
+  }
+
+  .ief-process button {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 560px) {
+  .ief-hero {
+    padding: 36px 18px 52px;
+  }
+
+  .ief-back {
+    margin-bottom: 44px;
+  }
+
+  .ief-hero h1 {
+    font-size: 40px;
+  }
+
+  .ief-services {
+    padding: 60px 18px;
+  }
+
+  .ief-services h2 {
+    font-size: 34px;
+  }
+
+  .ief-service {
+    padding: 26px 20px;
+  }
+
+  .ief-service-heading {
+    grid-template-columns: 42px 1fr;
+  }
+
+  .ief-process {
+    padding: 48px 18px;
+  }
+}

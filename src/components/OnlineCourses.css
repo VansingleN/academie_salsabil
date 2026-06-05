@@ -1,0 +1,305 @@
+.online-courses {
+  background: linear-gradient(135deg, #E8F3ED 0%, #FBF7F0 100%);
+  padding: 64px 22px 80px;
+}
+
+.online-courses-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.online-courses-header h2 {
+  margin: 0;
+  max-width: 980px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.online-courses-rule {
+  display: block;
+  width: 76px;
+  height: 7px;
+  margin: 16px 0 14px;
+  background: var(--gold);
+}
+
+.online-courses-header p {
+  color: var(--green-secondary);
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.online-courses-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 34px;
+  border-top: 1px solid rgba(13, 90, 55, 0.45);
+}
+
+.online-courses-tab {
+  position: relative;
+  min-height: 78px;
+  border: 1px solid rgba(13, 90, 55, 0.45);
+  border-left: 0;
+  border-top: 0;
+  background: rgba(252, 247, 241, 0.75);
+  color: var(--green-primary);
+  font: 700 16px/1.2 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.online-courses-tab:first-child {
+  border-left: 1px solid rgba(13, 90, 55, 0.45);
+}
+
+.online-courses-tab:hover,
+.online-courses-tab--active {
+  background: var(--green-primary);
+  color: #fff;
+}
+
+.online-courses-tab::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -21px;
+  width: 30px;
+  height: 30px;
+  opacity: 0;
+  background: var(--green-primary);
+  border-right: 1px solid rgba(13, 90, 55, 0.45);
+  border-bottom: 1px solid rgba(13, 90, 55, 0.45);
+  transform: translateX(-50%) rotate(45deg);
+  z-index: 2;
+}
+
+.online-courses-tab--active::after {
+  opacity: 1;
+}
+
+.online-courses-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
+  gap: 52px;
+  padding: 58px 48px 48px;
+  background: rgba(232, 243, 237, 0.92);
+}
+
+.online-courses-copy h3 {
+  max-width: 610px;
+  margin: 0 0 26px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.online-courses-block+.online-courses-block {
+  margin-top: 28px;
+}
+
+.online-courses-block h4 {
+  margin: 0 0 14px;
+  color: var(--green-primary);
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.online-courses-block p {
+  max-width: 670px;
+  margin: 0 0 14px;
+  color: #335f42;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.online-courses-block strong {
+  color: var(--green-primary);
+}
+
+.online-courses-cta {
+  margin-top: 8px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 700 12px/1 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.online-courses-cta:hover {
+  background: var(--green-secondary);
+  transform: translateY(-2px);
+}
+
+.online-courses-benefits {
+  align-self: start;
+  margin-top: 8px;
+  padding: 32px 26px 24px;
+  border-radius: 14px;
+  background: var(--green-primary);
+  color: #fff;
+  overflow: hidden;
+}
+
+.online-courses-benefits h3 {
+  margin: 0 0 24px;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.online-courses-benefits ul {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.online-courses-benefits li {
+  position: relative;
+  padding-left: 28px;
+  font-size: 15px;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.online-courses-benefits li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--gold);
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.online-courses-benefits li:nth-child(1)::before {
+  border-radius: 50%;
+  box-shadow: 8px 8px 0 -5px var(--gold);
+}
+
+.online-courses-benefits li:nth-child(4)::before {
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 13px solid var(--gold);
+  border-right: 0;
+  border-radius: 0;
+}
+
+.online-courses-visual {
+  position: relative;
+  min-height: 198px;
+  background: rgba(252, 247, 241, 0.18);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.online-courses-visual img {
+  display: block;
+  width: 100%;
+  min-height: 198px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 900px) {
+  .online-courses {
+    padding: 48px 18px 64px;
+  }
+
+  .online-courses-header h2 {
+    font-size: 34px;
+  }
+
+  .online-courses-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .online-courses-tab {
+    border-left: 0;
+  }
+
+  .online-courses-tab:nth-child(odd) {
+    border-left: 1px solid rgba(13, 90, 55, 0.45);
+  }
+
+  .online-courses-panel {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 44px 24px 32px;
+  }
+
+  .online-courses-benefits {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .online-courses-header h2 {
+    font-size: 28px;
+    line-height: 1.05;
+  }
+
+  .online-courses-panel {
+    padding: 38px 18px 26px;
+  }
+
+  .online-courses-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .online-courses-tab,
+  .online-courses-tab:nth-child(odd) {
+    min-height: 62px;
+    border-left: 1px solid rgba(13, 90, 55, 0.45);
+    font-size: 15px;
+  }
+
+  .online-courses-copy h3 {
+    font-size: 23px;
+  }
+
+  .online-courses-block h4 {
+    font-size: 19px;
+  }
+
+  .online-courses-block p {
+    font-size: 15px;
+  }
+
+  .online-courses-benefits {
+    padding: 28px 18px 20px;
+  }
+
+  .online-courses-benefits h3 {
+    font-size: 25px;
+  }
+
+  .online-courses-visual img {
+    min-height: 176px;
+  }
+}

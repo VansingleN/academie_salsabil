@@ -1,0 +1,225 @@
+.level-page {
+  background: #FCF7F1;
+}
+
+.level-page-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 620px;
+  padding: 70px 32px;
+  background-position: center;
+  background-size: cover;
+  color: #fff;
+}
+
+.level-page-hero-content {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.level-page-back {
+  margin-bottom: 72px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font: 700 13px/1.2 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+.level-page-back::before {
+  content: '←';
+  margin-right: 9px;
+}
+
+.level-page-kicker,
+.level-page-program-intro > span,
+.level-page-support span {
+  display: block;
+  margin-bottom: 13px;
+  color: #F0D4A0;
+  font: 800 13px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.level-page-hero h1 {
+  max-width: 720px;
+  margin: 0 0 22px;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 66px;
+  font-weight: 700;
+  line-height: 1.02;
+}
+
+.level-page-hero p {
+  max-width: 650px;
+  color: rgba(255, 255, 255, 0.9);
+  font: 400 19px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.level-page-cta {
+  margin-top: 32px;
+  min-height: 48px;
+  padding: 0 25px;
+  border: 1px solid rgba(240, 212, 160, 0.72);
+  border-radius: 8px;
+  background: #F0D4A0;
+  color: var(--green-primary);
+  font: 800 14px/1 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+.level-page-program {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+  gap: 72px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 82px 22px;
+  text-align: left;
+}
+
+.level-page-program-intro > span,
+.level-page-support span {
+  color: var(--gold);
+}
+
+.level-page-program h2,
+.level-page-support h2 {
+  margin: 0 0 20px;
+  color: var(--green-primary);
+  font-family: 'Playfair Display', serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+.level-page-program-intro p,
+.level-page-support > p {
+  color: #4f744e;
+  font: 400 17px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.level-page-pillars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(13, 90, 55, 0.2);
+}
+
+.level-page-pillars article {
+  min-height: 210px;
+  padding: 27px 24px;
+  border-right: 1px solid rgba(13, 90, 55, 0.16);
+  border-bottom: 1px solid rgba(13, 90, 55, 0.16);
+}
+
+.level-page-pillars article:nth-child(odd) {
+  border-left: 1px solid rgba(13, 90, 55, 0.16);
+}
+
+.level-page-pillars article > span {
+  display: block;
+  margin-bottom: 28px;
+  color: var(--gold);
+  font: 700 20px/1 'Playfair Display', serif;
+}
+
+.level-page-pillars h3 {
+  margin: 0 0 10px;
+  color: var(--green-primary);
+  font: 700 23px/1.15 'Playfair Display', serif;
+}
+
+.level-page-pillars p {
+  color: #4f744e;
+  font: 400 15px/1.58 'Inter', 'Poppins', sans-serif;
+}
+
+.level-page-support {
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr auto;
+  gap: 42px;
+  align-items: center;
+  padding: 55px max(22px, calc((100vw - 1180px) / 2));
+  background: #E8F3ED;
+  text-align: left;
+}
+
+.level-page-support h2 {
+  margin-bottom: 0;
+  font-size: 34px;
+}
+
+.level-page-support button {
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 700 13px/1 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .level-page-hero {
+    min-height: 560px;
+  }
+
+  .level-page-hero h1 {
+    font-size: 50px;
+  }
+
+  .level-page-program,
+  .level-page-support {
+    grid-template-columns: 1fr;
+  }
+
+  .level-page-support {
+    padding: 50px 22px;
+  }
+
+  .level-page-support button {
+    width: fit-content;
+  }
+}
+
+@media (max-width: 560px) {
+  .level-page-hero {
+    min-height: 520px;
+    padding: 44px 20px;
+  }
+
+  .level-page-back {
+    margin-bottom: 48px;
+  }
+
+  .level-page-hero h1 {
+    font-size: 39px;
+  }
+
+  .level-page-hero p {
+    font-size: 16px;
+  }
+
+  .level-page-program {
+    padding: 58px 18px;
+  }
+
+  .level-page-program h2 {
+    font-size: 34px;
+  }
+
+  .level-page-pillars {
+    grid-template-columns: 1fr;
+  }
+
+  .level-page-pillars article,
+  .level-page-pillars article:nth-child(odd) {
+    border-left: 1px solid rgba(13, 90, 55, 0.16);
+  }
+}

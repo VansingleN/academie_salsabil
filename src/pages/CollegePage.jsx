@@ -1,5 +1,6 @@
 import LevelPage from '../components/LevelPage'
-import image from '../images/banner_college.png'
+import CollegeCurriculum from '../components/CollegeCurriculum'
+import image from '../images/banner_levels.png'
 
 const level = {
   slug: 'college',
@@ -20,7 +21,11 @@ const level = {
 }
 
 function CollegePage() {
-  return <LevelPage level={level} />
+  return (
+    <LevelPage level={level}>
+      <CollegeCurriculum />
+    </LevelPage>
+  )
 }
 
 export default CollegePage

@@ -1,0 +1,45 @@
+.site-oilpaint-background {
+  flex: 1;
+  background:
+    linear-gradient(rgba(252, 247, 241, 0.38), rgba(252, 247, 241, 0.38)),
+    url('./images/bg_oilpaint.png') center top / cover fixed;
+}
+
+.site-oilpaint-background .home-page > .hero,
+.site-oilpaint-background .home-page > .method,
+.site-oilpaint-background .home-page > .online-courses,
+.site-oilpaint-background .home-page > .school-support,
+.site-oilpaint-background .home-page > .educational-values,
+.site-oilpaint-background .home-page > .faq,
+.site-oilpaint-background .level-page,
+.site-oilpaint-background .ief-page {
+  background: transparent;
+}
+
+.site-oilpaint-background .level-page-program,
+.site-oilpaint-background .college-curriculum-program,
+.site-oilpaint-background .primary-curriculum-program,
+.site-oilpaint-background .preschool-curriculum-program,
+.site-oilpaint-background .high-school-program,
+.site-oilpaint-background .ief-process {
+  background: rgba(252, 247, 241, 0.52);
+}
+
+.site-oilpaint-background .level-page-support,
+.site-oilpaint-background .college-organization,
+.site-oilpaint-background .primary-organization,
+.site-oilpaint-background .preschool-organization,
+.site-oilpaint-background .high-school-organization,
+.site-oilpaint-background .ief-services {
+  background: rgba(232, 243, 237, 0.7);
+}
+
+.site-oilpaint-background .contact {
+  background: rgba(252, 247, 241, 0.42);
+}
+
+@media (max-width: 768px) {
+  .site-oilpaint-background {
+    background-attachment: scroll;
+  }
+}

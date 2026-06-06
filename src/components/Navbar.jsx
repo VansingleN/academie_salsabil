@@ -4,15 +4,11 @@ import Logo from './Logo'
 import './Navbar.css'
 import { IconWhatsApp } from './ContactIcons'
 
-const academicSubjects = [
-  'Français',
-  'Mathématiques',
-  'Histoire-géographie',
-  'Anglais',
-  // 'Espagnol',
-  'Sciences de la vie et de la Terre',
-  'Physique-chimie',
-  'Technologie'
+const academicLevels = [
+  { name: 'Lycée', path: '/lycee' },
+  { name: 'Collège', path: '/college' },
+  { name: 'Primaire', path: '/primaire' },
+  { name: 'Maternelle', path: '/maternelle' }
 ]
 
 const merkezSubjects = [
@@ -21,22 +17,22 @@ const merkezSubjects = [
 ]
 
 function Navbar() {
-  const [isProgramsOpen, setIsProgramsOpen] = useState(false)
+  const [isCurriculaOpen, setIsCurriculaOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleContactClick = () => {
-    setIsProgramsOpen(false)
+    setIsCurriculaOpen(false)
     navigate('/contact')
   }
 
   const handleHomeClick = () => {
-    setIsProgramsOpen(false)
+    setIsCurriculaOpen(false)
     navigate('/')
   }
 
-  const handleProgramsClick = () => {
-    setIsProgramsOpen(false)
-    navigate('/programmes')
+  const handleLevelClick = (path) => {
+    setIsCurriculaOpen(false)
+    navigate(path)
   }
 
   return (
@@ -64,37 +60,42 @@ function Navbar() {
           </li>
 
           <li
-            className="navbar-programs"
-            onMouseLeave={() => setIsProgramsOpen(false)}
+            className="navbar-curricula"
+            onMouseLeave={() => setIsCurriculaOpen(false)}
             onKeyDown={(event) => {
-              if (event.key === 'Escape') setIsProgramsOpen(false)
+              if (event.key === 'Escape') setIsCurriculaOpen(false)
             }}
           >
             <button
-              className="nav-link-button navbar-programs-trigger"
+              className="nav-link-button navbar-curricula-trigger"
               type="button"
-              aria-expanded={isProgramsOpen}
+              aria-expanded={isCurriculaOpen}
               aria-haspopup="menu"
-              onClick={() => setIsProgramsOpen((isOpen) => !isOpen)}
+              onClick={() => setIsCurriculaOpen((isOpen) => !isOpen)}
             >
-              Nos programmes académiques
+              Nos cursus académiques
               <span aria-hidden="true"></span>
             </button>
 
-            <div className={`navbar-programs-menu${isProgramsOpen ? ' navbar-programs-menu--open' : ''}`}>
-              <div className="navbar-programs-group" role="menu">
-                {academicSubjects.map((subject) => (
-                  <button type="button" role="menuitem" key={subject} onClick={handleProgramsClick}>
-                    {subject}
+            <div className={`navbar-curricula-menu${isCurriculaOpen ? ' navbar-curricula-menu--open' : ''}`}>
+              <div className="navbar-curricula-group" role="menu">
+                {academicLevels.map((level) => (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    key={level.path}
+                    onClick={() => handleLevelClick(level.path)}
+                  >
+                    {level.name}
                   </button>
                 ))}
               </div>
 
-              <div className="navbar-programs-separator" aria-hidden="true">
+              <div className="navbar-curricula-separator" aria-hidden="true">
                 <span></span>
               </div>
 
-              <div className="navbar-programs-group navbar-programs-group--merkez" role="menu">
+              <div className="navbar-curricula-group navbar-curricula-group--merkez" role="menu">
                 {merkezSubjects.map((subject) => (
                   <a
                     href="https://silly-medovik-9b36bd.netlify.app/"
@@ -102,7 +103,7 @@ function Navbar() {
                     rel="noreferrer"
                     role="menuitem"
                     key={subject}
-                    onClick={() => setIsProgramsOpen(false)}
+                    onClick={() => setIsCurriculaOpen(false)}
                   >
                     {subject}
                     <span aria-hidden="true">↗</span>

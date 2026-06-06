@@ -1,5 +1,6 @@
 import LevelPage from '../components/LevelPage'
-import image from '../images/banner_lycee.png'
+import HighSchoolCurriculum from '../components/HighSchoolCurriculum'
+import image from '../images/banner_levels.png'
 
 const level = {
   slug: 'lycee',
@@ -20,7 +21,11 @@ const level = {
 }
 
 function LyceePage() {
-  return <LevelPage level={level} />
+  return (
+    <LevelPage level={level}>
+      <HighSchoolCurriculum />
+    </LevelPage>
+  )
 }
 
 export default LyceePage

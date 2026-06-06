@@ -1,5 +1,6 @@
 import LevelPage from '../components/LevelPage'
-import image from '../images/banner_maternelle.png'
+import PreschoolCurriculum from '../components/PreschoolCurriculum'
+import image from '../images/banner_levels.png'
 
 const level = {
   slug: 'maternelle',
@@ -20,7 +21,11 @@ const level = {
 }
 
 function MaternellePage() {
-  return <LevelPage level={level} />
+  return (
+    <LevelPage level={level}>
+      <PreschoolCurriculum />
+    </LevelPage>
+  )
 }
 
 export default MaternellePage

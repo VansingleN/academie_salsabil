@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import levelsTreeImage from '../images/levels_tree_reference.png'
+import levelsTreeImage from '../images/levels_tree_transparent.png'
 import './LevelTree.css'
 
 const levels = [
@@ -7,25 +7,25 @@ const levels = [
     number: '01',
     name: 'Maternelle',
     path: '/maternelle',
-    position: 'maternelle'
+    position: 'lower-right'
   },
   {
     number: '02',
     name: 'Primaire',
     path: '/primaire',
-    position: 'primaire'
+    position: 'right'
   },
   {
     number: '03',
     name: 'Collège',
     path: '/college',
-    position: 'college'
+    position: 'left'
   },
   {
     number: '04',
     name: 'Lycée',
     path: '/lycee',
-    position: 'lycee'
+    position: 'top'
   }
 ]
 

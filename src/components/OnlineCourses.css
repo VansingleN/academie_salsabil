@@ -144,6 +144,31 @@
   transform: translateY(-2px);
 }
 
+.online-courses-level-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.online-courses-level-cta {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--green-primary);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--green-primary);
+  font: 700 12px/1.2 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.online-courses-level-cta:hover {
+  background: var(--green-primary);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
 .online-courses-benefits {
   align-self: start;
   margin-top: 8px;
@@ -256,6 +281,10 @@
   .online-courses-benefits {
     margin-top: 0;
   }
+
+  .online-courses-level-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 560px) {
@@ -301,5 +330,9 @@
 
   .online-courses-visual img {
     min-height: 176px;
+  }
+
+  .online-courses-level-actions {
+    grid-template-columns: 1fr;
   }
 }

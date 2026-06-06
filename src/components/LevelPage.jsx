@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import './LevelPage.css'
 
-function LevelPage({ level }) {
+function LevelPage({ level, children }) {
   const navigate = useNavigate()
 
   return (
@@ -59,6 +59,8 @@ function LevelPage({ level }) {
           Demander des informations
         </button>
       </section>
+
+      {children}
     </main>
   )
 }

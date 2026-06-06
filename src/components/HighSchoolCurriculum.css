@@ -1,0 +1,390 @@
+.high-school-curriculum {
+  text-align: left;
+}
+
+.high-school-program,
+.high-school-organization {
+  padding: 84px 22px;
+}
+
+.high-school-program {
+  background: #fcf7f1;
+}
+
+.high-school-program > *,
+.high-school-organization > * {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.high-school-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 64px;
+  align-items: end;
+  margin-bottom: 42px;
+}
+
+.high-school-heading span,
+.high-school-organization > header > span,
+.high-school-panel > header span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--gold);
+  font: 800 13px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.high-school-heading h2,
+.high-school-organization > header h2 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 44px/1.08 'Playfair Display', serif;
+}
+
+.high-school-heading > p,
+.high-school-organization > header > p {
+  padding-left: 24px;
+  border-left: 3px solid var(--gold);
+  color: #4f744e;
+  font: 400 16px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid rgba(13, 90, 55, 0.28);
+}
+
+.high-school-tab {
+  min-height: 96px;
+  padding: 14px;
+  border: 0;
+  border-right: 1px solid rgba(13, 90, 55, 0.28);
+  background: rgba(232, 243, 237, 0.56);
+  color: var(--green-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.high-school-tab:last-child {
+  border-right: 0;
+}
+
+.high-school-tab strong,
+.high-school-tab span {
+  display: block;
+}
+
+.high-school-tab strong {
+  font: 700 25px/1.1 'Playfair Display', serif;
+}
+
+.high-school-tab span {
+  margin-top: 7px;
+  font: 600 11px/1.3 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-tab:hover,
+.high-school-tab--active {
+  background: var(--green-primary);
+  color: #fff;
+}
+
+.high-school-panel {
+  padding: 46px;
+  background: #e8f3ed;
+}
+
+.high-school-panel > header {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.7fr) minmax(0, 1.3fr);
+  gap: 48px;
+  margin-bottom: 36px;
+}
+
+.high-school-panel > header h3 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 30px/1.15 'Playfair Display', serif;
+}
+
+.high-school-panel > header > p {
+  color: #456b4e;
+  font: 400 16px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-subjects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(13, 90, 55, 0.2);
+}
+
+.high-school-subject {
+  min-height: 210px;
+  padding: 25px 24px;
+  border-right: 1px solid rgba(13, 90, 55, 0.18);
+  border-bottom: 1px solid rgba(13, 90, 55, 0.18);
+  background: rgba(252, 247, 241, 0.42);
+}
+
+.high-school-subject:nth-child(odd) {
+  border-left: 1px solid rgba(13, 90, 55, 0.18);
+}
+
+.high-school-subject > div {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.high-school-subject h4 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 21px/1.2 'Playfair Display', serif;
+}
+
+.high-school-subject > div span {
+  flex: 0 0 auto;
+  color: #8a682c;
+  font: 800 11px/1.2 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-subject p {
+  color: #456b4e;
+  font: 400 14px/1.58 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-organization {
+  background: #e8f3ed;
+}
+
+.high-school-organization > header {
+  max-width: 800px;
+  margin-bottom: 42px;
+}
+
+.high-school-organization > header > p {
+  margin-top: 20px;
+}
+
+.high-school-organization-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 30px;
+}
+
+.high-school-hours-table {
+  align-self: start;
+  border-top: 1px solid rgba(13, 90, 55, 0.24);
+}
+
+.high-school-hours-row {
+  display: grid;
+  grid-template-columns: 0.7fr 1fr 0.8fr;
+  min-height: 72px;
+  border-inline: 1px solid rgba(13, 90, 55, 0.2);
+  border-bottom: 1px solid rgba(13, 90, 55, 0.2);
+  background: rgba(252, 247, 241, 0.62);
+}
+
+.high-school-hours-row > * {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-right: 1px solid rgba(13, 90, 55, 0.16);
+  color: #365f43;
+  font: 600 14px/1.3 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-hours-row > *:last-child {
+  border-right: 0;
+}
+
+.high-school-hours-row strong {
+  color: var(--green-primary);
+  font: 700 20px/1 'Playfair Display', serif;
+}
+
+.high-school-hours-row--heading {
+  min-height: 48px;
+  background: var(--green-primary);
+}
+
+.high-school-hours-row--heading span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.high-school-enrollment {
+  padding: 34px 30px;
+  background: var(--green-primary);
+  color: #fff;
+}
+
+.high-school-enrollment-number {
+  display: block;
+  color: #f0d4a0;
+  font: 700 70px/0.9 'Playfair Display', serif;
+}
+
+.high-school-enrollment h3 {
+  margin: 12px 0 18px;
+  color: #fff;
+  font: 700 25px/1.15 'Playfair Display', serif;
+}
+
+.high-school-enrollment p,
+.high-school-enrollment li {
+  color: rgba(255, 255, 255, 0.86);
+  font: 400 14px/1.55 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-enrollment ul {
+  display: grid;
+  gap: 9px;
+  margin: 22px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid rgba(240, 212, 160, 0.32);
+  list-style: none;
+}
+
+.high-school-enrollment li {
+  position: relative;
+  padding-left: 17px;
+}
+
+.high-school-enrollment li::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+.high-school-pricing-note {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 34px;
+  align-items: center;
+  margin-top: 30px;
+  padding: 30px 34px;
+  border-left: 5px solid var(--gold);
+  background: #fcf7f1;
+}
+
+.high-school-pricing-note span {
+  color: var(--gold);
+  font: 800 12px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.high-school-pricing-note h3 {
+  margin: 7px 0;
+  color: var(--green-primary);
+  font: 700 25px/1.15 'Playfair Display', serif;
+}
+
+.high-school-pricing-note p,
+.high-school-sources {
+  color: #4f744e;
+  font: 400 14px/1.5 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-pricing-note button {
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 800 13px/1 'Inter', 'Poppins', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.high-school-sources {
+  margin-top: 18px;
+  color: #66816a;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .high-school-program,
+  .high-school-organization {
+    padding: 64px 18px;
+  }
+
+  .high-school-heading,
+  .high-school-panel > header,
+  .high-school-organization-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .high-school-heading h2,
+  .high-school-organization > header h2 {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 620px) {
+  .high-school-tabs,
+  .high-school-subjects {
+    grid-template-columns: 1fr;
+  }
+
+  .high-school-tab {
+    border-right: 0;
+    border-bottom: 1px solid rgba(13, 90, 55, 0.28);
+  }
+
+  .high-school-tab:last-child {
+    border-bottom: 0;
+  }
+
+  .high-school-panel {
+    padding: 32px 18px;
+  }
+
+  .high-school-subject,
+  .high-school-subject:nth-child(odd) {
+    min-height: auto;
+    border-left: 1px solid rgba(13, 90, 55, 0.18);
+  }
+
+  .high-school-subject > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .high-school-hours-row {
+    grid-template-columns: 0.55fr 0.9fr 0.8fr;
+  }
+
+  .high-school-hours-row > * {
+    padding: 12px 8px;
+    font-size: 11px;
+  }
+
+  .high-school-hours-row--heading span {
+    font-size: 9px;
+  }
+
+  .high-school-pricing-note {
+    grid-template-columns: 1fr;
+    padding: 26px 22px;
+  }
+
+  .high-school-pricing-note button {
+    width: 100%;
+  }
+}

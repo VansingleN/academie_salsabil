@@ -6,7 +6,7 @@
 .level-tree-illustration {
   position: relative;
   width: min(100%, 540px);
-  aspect-ratio: 0.735;
+  aspect-ratio: 1043 / 1508;
   margin: 0 auto;
   overflow: hidden;
 }
@@ -31,7 +31,7 @@
 .level-tree-leaf {
   position: absolute;
   z-index: 2;
-  width: 25.5%;
+  width: 28%;
   aspect-ratio: 1;
   padding: 0;
   border: 0;
@@ -44,21 +44,24 @@
 .level-tree-leaf::after {
   content: '';
   position: absolute;
-  left: 50%;
-  bottom: 9%;
-  width: 7px;
-  height: 7px;
+  inset: 7%;
   border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0 4px rgba(252, 247, 241, 0.82);
+  background: radial-gradient(
+    circle,
+    rgba(255, 252, 245, 0.04) 35%,
+    rgba(218, 174, 84, 0.14) 72%,
+    rgba(218, 174, 84, 0.05) 100%
+  );
+  box-shadow: inset 0 0 16px rgba(201, 151, 51, 0.14);
+  backdrop-filter: brightness(1.05);
   opacity: 0;
-  transform: translate(-50%, 5px);
+  transform: scale(0.94);
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .level-tree-leaf:hover::after {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: scale(1);
 }
 
 .level-tree-leaf:focus-visible {
@@ -66,23 +69,23 @@
   outline-offset: 3px;
 }
 
-.level-tree-leaf--maternelle {
-  left: 38.5%;
+.level-tree-leaf--top {
+  left: 37.4%;
   top: 7.7%;
 }
 
-.level-tree-leaf--primaire {
-  left: 9.4%;
-  top: 28%;
+.level-tree-leaf--left {
+  left: 7.9%;
+  top: 27.3%;
 }
 
-.level-tree-leaf--college {
-  left: 64.6%;
-  top: 28%;
+.level-tree-leaf--right {
+  left: 67.5%;
+  top: 27.6%;
 }
 
-.level-tree-leaf--lycee {
-  left: 64.6%;
+.level-tree-leaf--lower-right {
+  left: 66.3%;
   top: 54.8%;
 }
 

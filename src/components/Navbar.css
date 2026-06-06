@@ -118,11 +118,11 @@
   width: 100%;
 }
 
-.navbar-programs {
+.navbar-curricula {
   position: relative;
 }
 
-.navbar-programs::after {
+.navbar-curricula::after {
   content: '';
   position: absolute;
   top: 100%;
@@ -131,14 +131,14 @@
   height: 18px;
 }
 
-.navbar-programs-trigger {
+.navbar-curricula-trigger {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
 }
 
-.navbar-programs-trigger > span {
+.navbar-curricula-trigger > span {
   width: 7px;
   height: 7px;
   border-right: 1.5px solid currentColor;
@@ -147,11 +147,11 @@
   transition: transform 0.2s ease;
 }
 
-.navbar-programs-trigger[aria-expanded='true'] > span {
+.navbar-curricula-trigger[aria-expanded='true'] > span {
   transform: translateY(2px) rotate(225deg);
 }
 
-.navbar-programs-menu {
+.navbar-curricula-menu {
   position: absolute;
   top: calc(100% + 16px);
   left: 50%;
@@ -168,13 +168,13 @@
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
 }
 
-.navbar-programs-menu--open {
+.navbar-curricula-menu--open {
   opacity: 1;
   visibility: visible;
   transform: translate(-50%, 0);
 }
 
-.navbar-programs-menu::before {
+.navbar-curricula-menu::before {
   content: '';
   position: absolute;
   left: 50%;
@@ -187,13 +187,13 @@
   transform: translateX(-50%) rotate(45deg);
 }
 
-.navbar-programs-group {
+.navbar-curricula-group {
   display: grid;
   gap: 2px;
 }
 
-.navbar-programs-group button,
-.navbar-programs-group a {
+.navbar-curricula-group button,
+.navbar-curricula-group a {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -211,40 +211,40 @@
   transition: background-color 0.18s ease, color 0.18s ease, padding-left 0.18s ease;
 }
 
-.navbar-programs-group button:hover,
-.navbar-programs-group a:hover {
+.navbar-curricula-group button:hover,
+.navbar-curricula-group a:hover {
   padding-left: 16px;
   background: rgba(13, 90, 55, 0.08);
   color: var(--green-primary);
 }
 
-.navbar-programs-group a::after {
+.navbar-curricula-group a::after {
   display: none;
 }
 
-.navbar-programs-separator {
+.navbar-curricula-separator {
   display: flex;
   align-items: center;
   gap: 9px;
   margin: 10px 6px;
 }
 
-.navbar-programs-separator::before,
-.navbar-programs-separator::after {
+.navbar-curricula-separator::before,
+.navbar-curricula-separator::after {
   content: '';
   flex: 1;
   height: 1px;
   background: rgba(201, 152, 63, 0.42);
 }
 
-.navbar-programs-separator span {
+.navbar-curricula-separator span {
   width: 5px;
   height: 5px;
   background: var(--gold);
   transform: rotate(45deg);
 }
 
-.navbar-programs-group--merkez a {
+.navbar-curricula-group--merkez a {
   color: #7D652D;
   font-weight: 700;
 }
@@ -269,20 +269,20 @@
     text-align: center;
   }
 
-  .navbar-programs {
+  .navbar-curricula {
     width: 100%;
   }
 
-  .navbar-programs::after {
+  .navbar-curricula::after {
     display: none;
   }
 
-  .navbar-programs-trigger {
+  .navbar-curricula-trigger {
     justify-content: center;
     width: 100%;
   }
 
-  .navbar-programs-menu {
+  .navbar-curricula-menu {
     position: static;
     width: 100%;
     max-height: 0;
@@ -295,7 +295,7 @@
     box-shadow: none;
   }
 
-  .navbar-programs-menu--open {
+  .navbar-curricula-menu--open {
     max-height: 620px;
     margin-top: 14px;
     padding-block: 14px;
@@ -303,7 +303,7 @@
     visibility: visible;
   }
 
-  .navbar-programs-menu::before {
+  .navbar-curricula-menu::before {
     display: none;
   }
 

@@ -121,6 +121,13 @@ const offers = [
   }
 ]
 
+const courseLevels = [
+  { name: 'Maternelle', path: '/maternelle' },
+  { name: 'Primaire', path: '/primaire' },
+  { name: 'Collège', path: '/college' },
+  { name: 'Lycée', path: '/lycee' }
+]
+
 function OnlineCourses() {
   const [activeTab, setActiveTab] = useState(offers[0].tab)
   const activeOffer = offers.find((offer) => offer.tab === activeTab) ?? offers[0]
@@ -163,17 +170,32 @@ function OnlineCourses() {
               </div>
             ))}
 
-            <button
-              className="online-courses-cta"
-              type="button"
-              onClick={() => navigate(
-                activeOffer.tab === 'Instruction en famille'
-                  ? '/instruction-en-famille'
-                  : '/contact'
-              )}
-            >
-              Je me renseigne
-            </button>
+            {activeOffer.tab === 'Cursus complet' ? (
+              <div className="online-courses-level-actions" aria-label="Choisir un cursus par niveau">
+                {courseLevels.map((level) => (
+                  <button
+                    className="online-courses-level-cta"
+                    type="button"
+                    key={level.path}
+                    onClick={() => navigate(level.path)}
+                  >
+                    {level.name}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <button
+                className="online-courses-cta"
+                type="button"
+                onClick={() => navigate(
+                  activeOffer.tab === 'Instruction en famille'
+                    ? '/instruction-en-famille'
+                    : '/contact'
+                )}
+              >
+                Je me renseigne
+              </button>
+            )}
           </div>
 
           <aside className="online-courses-benefits" aria-label="Avantages des cours en ligne">

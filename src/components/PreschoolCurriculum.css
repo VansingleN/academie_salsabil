@@ -1,0 +1,396 @@
+.preschool-curriculum {
+  text-align: left;
+}
+
+.preschool-curriculum-program,
+.preschool-organization {
+  padding: 84px 22px;
+}
+
+.preschool-curriculum-program {
+  background: #fcf7f1;
+}
+
+.preschool-curriculum-program > *,
+.preschool-organization > * {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.preschool-curriculum-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 64px;
+  align-items: end;
+  margin-bottom: 42px;
+}
+
+.preschool-curriculum-heading span,
+.preschool-organization > header > span,
+.preschool-grade-panel > header span {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--gold);
+  font: 800 13px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.preschool-curriculum-heading h2,
+.preschool-organization > header h2 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 44px/1.08 'Playfair Display', serif;
+}
+
+.preschool-curriculum-heading > p,
+.preschool-organization > header > p {
+  padding-left: 24px;
+  border-left: 3px solid var(--gold);
+  color: #4f744e;
+  font: 400 16px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-grade-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid rgba(13, 90, 55, 0.28);
+}
+
+.preschool-grade-tab {
+  min-height: 100px;
+  padding: 13px;
+  border: 0;
+  border-right: 1px solid rgba(13, 90, 55, 0.28);
+  background: rgba(232, 243, 237, 0.56);
+  color: var(--green-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.preschool-grade-tab:last-child {
+  border-right: 0;
+}
+
+.preschool-grade-tab strong,
+.preschool-grade-tab span,
+.preschool-grade-tab small {
+  display: block;
+}
+
+.preschool-grade-tab strong {
+  font: 700 25px/1 'Playfair Display', serif;
+}
+
+.preschool-grade-tab span {
+  margin-top: 7px;
+  font: 700 13px/1.2 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-grade-tab small {
+  margin-top: 5px;
+  font: 500 11px/1.2 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-grade-tab:hover,
+.preschool-grade-tab--active {
+  background: var(--green-primary);
+  color: #fff;
+}
+
+.preschool-grade-panel {
+  padding: 46px;
+  background: #e8f3ed;
+}
+
+.preschool-grade-panel > header {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.7fr) minmax(0, 1.3fr);
+  gap: 48px;
+  margin-bottom: 36px;
+}
+
+.preschool-grade-panel > header h3 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 30px/1.15 'Playfair Display', serif;
+}
+
+.preschool-grade-panel > header > p {
+  color: #456b4e;
+  font: 400 16px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-domains {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(13, 90, 55, 0.2);
+}
+
+.preschool-domain {
+  min-height: 200px;
+  padding: 25px 24px;
+  border-right: 1px solid rgba(13, 90, 55, 0.18);
+  border-bottom: 1px solid rgba(13, 90, 55, 0.18);
+  background: rgba(252, 247, 241, 0.42);
+}
+
+.preschool-domain:nth-child(odd) {
+  border-left: 1px solid rgba(13, 90, 55, 0.18);
+}
+
+.preschool-domain > div {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.preschool-domain h4 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 21px/1.2 'Playfair Display', serif;
+}
+
+.preschool-domain > div span {
+  flex: 0 0 auto;
+  color: #8a682c;
+  font: 800 11px/1.2 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-domain p {
+  color: #456b4e;
+  font: 400 14px/1.58 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-organization {
+  background: #e8f3ed;
+}
+
+.preschool-organization > header {
+  max-width: 780px;
+  margin-bottom: 42px;
+}
+
+.preschool-organization > header > p {
+  margin-top: 20px;
+}
+
+.preschool-organization-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+  gap: 30px;
+}
+
+.preschool-hours-table {
+  align-self: start;
+  border-top: 1px solid rgba(13, 90, 55, 0.24);
+}
+
+.preschool-hours-row {
+  display: grid;
+  grid-template-columns: 0.6fr 1fr 0.8fr;
+  min-height: 72px;
+  border-inline: 1px solid rgba(13, 90, 55, 0.2);
+  border-bottom: 1px solid rgba(13, 90, 55, 0.2);
+  background: rgba(252, 247, 241, 0.62);
+}
+
+.preschool-hours-row > * {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-right: 1px solid rgba(13, 90, 55, 0.16);
+  color: #365f43;
+  font: 600 14px/1.3 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-hours-row > *:last-child {
+  border-right: 0;
+}
+
+.preschool-hours-row strong {
+  color: var(--green-primary);
+  font: 700 21px/1 'Playfair Display', serif;
+}
+
+.preschool-hours-row--heading {
+  min-height: 48px;
+  background: var(--green-primary);
+}
+
+.preschool-hours-row--heading span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.preschool-enrollment {
+  padding: 34px 30px;
+  background: var(--green-primary);
+  color: #fff;
+}
+
+.preschool-enrollment-number {
+  display: block;
+  color: #f0d4a0;
+  font: 700 70px/0.9 'Playfair Display', serif;
+}
+
+.preschool-enrollment h3 {
+  margin: 12px 0 18px;
+  color: #fff;
+  font: 700 25px/1.15 'Playfair Display', serif;
+}
+
+.preschool-enrollment p,
+.preschool-enrollment li {
+  color: rgba(255, 255, 255, 0.86);
+  font: 400 14px/1.55 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-enrollment ul {
+  display: grid;
+  gap: 9px;
+  margin: 22px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid rgba(240, 212, 160, 0.32);
+  list-style: none;
+}
+
+.preschool-enrollment li {
+  position: relative;
+  padding-left: 17px;
+}
+
+.preschool-enrollment li::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+.preschool-pricing-note {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 34px;
+  align-items: center;
+  margin-top: 30px;
+  padding: 30px 34px;
+  border-left: 5px solid var(--gold);
+  background: #fcf7f1;
+}
+
+.preschool-pricing-note span {
+  color: var(--gold);
+  font: 800 12px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.preschool-pricing-note h3 {
+  margin: 7px 0;
+  color: var(--green-primary);
+  font: 700 25px/1.15 'Playfair Display', serif;
+}
+
+.preschool-pricing-note p,
+.preschool-program-sources {
+  color: #4f744e;
+  font: 400 14px/1.5 'Inter', 'Poppins', sans-serif;
+}
+
+.preschool-pricing-note button {
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 800 13px/1 'Inter', 'Poppins', sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.preschool-program-sources {
+  margin-top: 18px;
+  color: #66816a;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .preschool-curriculum-program,
+  .preschool-organization {
+    padding: 64px 18px;
+  }
+
+  .preschool-curriculum-heading,
+  .preschool-grade-panel > header,
+  .preschool-organization-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .preschool-curriculum-heading h2,
+  .preschool-organization > header h2 {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 620px) {
+  .preschool-grade-tabs,
+  .preschool-domains {
+    grid-template-columns: 1fr;
+  }
+
+  .preschool-grade-tab {
+    border-right: 0;
+    border-bottom: 1px solid rgba(13, 90, 55, 0.28);
+  }
+
+  .preschool-grade-tab:last-child {
+    border-bottom: 0;
+  }
+
+  .preschool-grade-panel {
+    padding: 32px 18px;
+  }
+
+  .preschool-domain,
+  .preschool-domain:nth-child(odd) {
+    min-height: auto;
+    border-left: 1px solid rgba(13, 90, 55, 0.18);
+  }
+
+  .preschool-domain > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .preschool-hours-row {
+    grid-template-columns: 0.45fr 0.9fr 0.8fr;
+  }
+
+  .preschool-hours-row > * {
+    padding: 12px 8px;
+    font-size: 11px;
+  }
+
+  .preschool-hours-row--heading span {
+    font-size: 9px;
+  }
+
+  .preschool-pricing-note {
+    grid-template-columns: 1fr;
+    padding: 26px 22px;
+  }
+
+  .preschool-pricing-note button {
+    width: 100%;
+  }
+}

@@ -3,6 +3,7 @@
 }
 
 .high-school-program,
+.high-school-formulas,
 .high-school-organization {
   padding: 84px 22px;
 }
@@ -12,6 +13,7 @@
 }
 
 .high-school-program > *,
+.high-school-formulas > *,
 .high-school-organization > * {
   max-width: 1180px;
   margin-inline: auto;
@@ -155,6 +157,171 @@
 .high-school-subject p {
   color: #456b4e;
   font: 400 14px/1.58 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-formulas {
+  background: rgba(252, 247, 241, 0.68);
+}
+
+.high-school-formulas-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 64px;
+  align-items: end;
+  margin-bottom: 42px;
+}
+
+.high-school-formulas-heading > div > span,
+.high-school-formula-eyebrow {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--gold);
+  font: 800 13px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.high-school-formulas-heading h2 {
+  margin: 0;
+  color: var(--green-primary);
+  font: 700 42px/1.08 'Playfair Display', serif;
+}
+
+.high-school-formulas-heading > p {
+  padding-left: 24px;
+  border-left: 3px solid var(--gold);
+  color: #4f744e;
+  font: 400 16px/1.65 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-formulas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.high-school-formula-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 480px;
+  padding: 34px 28px 28px;
+  border: 1px solid rgba(13, 90, 55, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 16px 36px rgba(22, 65, 43, 0.08);
+}
+
+.high-school-formula-card--featured {
+  border-color: var(--gold);
+  background: var(--green-primary);
+  transform: translateY(-8px);
+}
+
+.high-school-formula-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background: #e8f3ed;
+  color: var(--green-primary);
+  font: 800 10px/1 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.high-school-formula-card--featured .high-school-formula-badge {
+  background: var(--gold);
+  color: #173f2d;
+}
+
+.high-school-formula-card h3 {
+  margin: 0 0 18px;
+  color: var(--green-primary);
+  font: 700 30px/1.1 'Playfair Display', serif;
+}
+
+.high-school-formula-price {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
+.high-school-formula-price strong {
+  color: var(--green-primary);
+  font: 700 38px/1 'Playfair Display', serif;
+}
+
+.high-school-formula-price span,
+.high-school-formula-card > p,
+.high-school-formula-card li {
+  color: #55735d;
+  font: 500 13px/1.55 'Inter', 'Poppins', sans-serif;
+}
+
+.high-school-formula-card > p {
+  min-height: 62px;
+  margin: 0;
+}
+
+.high-school-formula-card ul {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0 28px;
+  padding: 22px 0 0;
+  border-top: 1px solid rgba(13, 90, 55, 0.16);
+  list-style: none;
+}
+
+.high-school-formula-card li {
+  position: relative;
+  padding-left: 17px;
+}
+
+.high-school-formula-card li::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+
+.high-school-formula-card button {
+  min-height: 46px;
+  margin-top: auto;
+  border: 0;
+  border-radius: 6px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 800 13px/1 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+.high-school-formula-card--featured h3,
+.high-school-formula-card--featured .high-school-formula-price strong,
+.high-school-formula-card--featured .high-school-formula-price span,
+.high-school-formula-card--featured > p,
+.high-school-formula-card--featured li {
+  color: #fff;
+}
+
+.high-school-formula-card--featured ul {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+.high-school-formula-card--featured button {
+  background: var(--gold);
+  color: #173f2d;
+}
+
+.high-school-formulas-note {
+  margin-top: 22px;
+  color: #66816a;
+  font: 400 11px/1.55 'Inter', 'Poppins', sans-serif;
 }
 
 .high-school-organization {
@@ -318,11 +485,13 @@
 
 @media (max-width: 900px) {
   .high-school-program,
+  .high-school-formulas,
   .high-school-organization {
     padding: 64px 18px;
   }
 
   .high-school-heading,
+  .high-school-formulas-heading,
   .high-school-panel > header,
   .high-school-organization-grid {
     grid-template-columns: 1fr;
@@ -330,8 +499,19 @@
   }
 
   .high-school-heading h2,
+  .high-school-formulas-heading h2,
   .high-school-organization > header h2 {
     font-size: 36px;
+  }
+
+  .high-school-formulas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .high-school-formula-card,
+  .high-school-formula-card--featured {
+    min-height: auto;
+    transform: none;
   }
 }
 
@@ -352,6 +532,14 @@
 
   .high-school-panel {
     padding: 32px 18px;
+  }
+
+  .high-school-formulas-heading h2 {
+    font-size: 31px;
+  }
+
+  .high-school-formula-card {
+    padding: 30px 22px 24px;
   }
 
   .high-school-subject,

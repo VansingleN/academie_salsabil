@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import EnrollmentModal from './EnrollmentModal'
+import FormulaGradeSelector from './FormulaGradeSelector'
+import { addCartItem } from '../utils/cart'
+import { buildPricingPlans, formatEuro } from '../utils/pricing'
 import './PreschoolCurriculum.css'
 
 const grades = [
@@ -12,7 +16,6 @@ const grades = [
     summary:
       "La petite section accompagne les premiers pas dans la vie scolaire. L'enfant apprend à se séparer progressivement, à communiquer, à jouer avec les autres et à prendre confiance dans un cadre stable et rassurant.",
     weeklyHours: '24 h',
-    price: '289 €',
     domains: [
       {
         name: 'Langage oral et écrit',
@@ -49,7 +52,6 @@ const grades = [
     summary:
       "En moyenne section, l'enfant s'exprime avec davantage de précision, apprend à expliquer ce qu'il fait et développe sa capacité à observer, comparer, mémoriser et coopérer.",
     weeklyHours: '24 h',
-    price: '309 €',
     domains: [
       {
         name: 'Langage oral et écrit',
@@ -92,7 +94,6 @@ const grades = [
     summary:
       "La grande section achève le cycle des apprentissages premiers. L'enfant structure son langage, consolide sa compréhension du nombre et développe les habitudes de travail qui faciliteront son entrée au CP.",
     weeklyHours: '24 h',
-    price: '329 €',
     domains: [
       {
         name: 'Langage oral et écrit',
@@ -128,10 +129,34 @@ const grades = [
   }
 ]
 
+// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
+const pricingByGrade = {
+  ps: { monthly: 289, quarterly: 915, annual: 2600 },
+  ms: { monthly: 309, quarterly: 980, annual: 2780 },
+  gs: { monthly: 329, quarterly: 1040, annual: 2960 }
+}
+
+const preschoolFees = { monthly: 70, quarterly: 45 }
+
+const preschoolEnrollmentFields = [
+  {
+    name: 'timeSlot',
+    label: 'Tranche horaire',
+    placeholder: 'Choisir une tranche horaire',
+    required: true,
+    options: [
+      { value: 'morning', label: 'Matin' },
+      { value: 'afternoon', label: 'Après-midi' }
+    ]
+  }
+]
+
 function PreschoolCurriculum() {
   const [activeGrade, setActiveGrade] = useState(grades[0].id)
+  const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
+  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], preschoolFees)
 
   return (
     <div className="preschool-curriculum">
@@ -188,6 +213,59 @@ function PreschoolCurriculum() {
         </article>
       </section>
 
+      <section className="preschool-formulas" aria-labelledby="preschool-formulas-title">
+        <header className="preschool-formulas-heading">
+          <div>
+            <span>Formules d’inscription</span>
+            <h2 id="preschool-formulas-title">Les formules pour la {grade.label.toLowerCase()}</h2>
+          </div>
+          <p>
+            Toutes les formules donnent accès au même accompagnement pédagogique. Le
+            calendrier de règlement, les frais de dossier et la dégressivité sont les
+            seuls éléments qui varient.
+          </p>
+        </header>
+
+        <FormulaGradeSelector
+          grades={grades.map((item) => ({ ...item, formulaLabel: item.shortLabel }))}
+          activeGrade={activeGrade}
+          onChange={setActiveGrade}
+          ariaLabel="Choisir la classe pour les formules de maternelle"
+        />
+
+        <div className="preschool-formulas-grid">
+          {pricingPlans.map((plan) => (
+            <article
+              className={`preschool-formula-card${plan.featured ? ' preschool-formula-card--featured' : ''}`}
+              key={plan.name}
+            >
+              {plan.badge && <span className="preschool-formula-badge">{plan.badge}</span>}
+              <span className="preschool-formula-eyebrow">{plan.eyebrow}</span>
+              <h3>{plan.name}</h3>
+              <div className="preschool-formula-price">
+                <strong>{plan.price}</strong>
+                <span>{plan.period}</span>
+              </div>
+              <p>{plan.description}</p>
+              <ul>
+                {plan.details.map((detail) => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+              <button type="button" onClick={() => setSelectedPlan(plan)}>
+                Choisir cette formule
+              </button>
+            </article>
+          ))}
+        </div>
+
+        <p className="preschool-formulas-note">
+          Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
+          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
+          montant total de la formule.
+        </p>
+      </section>
+
       <section className="preschool-organization" aria-labelledby="preschool-organization-title">
         <header>
           <span>Organisation pédagogique</span>
@@ -210,7 +288,7 @@ function PreschoolCurriculum() {
               <div className="preschool-hours-row" key={item.id}>
                 <strong>{item.shortLabel}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{item.price} / mois</span>
+                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -250,6 +328,33 @@ function PreschoolCurriculum() {
           et de mathématiques appliqués depuis la rentrée 2025, ressources Éduscol.
         </p>
       </section>
+
+      <EnrollmentModal
+        key={selectedPlan?.id ?? 'closed-enrollment-modal'}
+        isOpen={Boolean(selectedPlan)}
+        title={`Inscription ${grade.shortLabel}`}
+        subtitle="Cursus Maternelle"
+        fields={preschoolEnrollmentFields}
+        summary={{
+          label: `Formule ${selectedPlan?.name ?? ''}`,
+          value: selectedPlan ? `${selectedPlan.price} ${selectedPlan.period}` : ''
+        }}
+        onClose={() => setSelectedPlan(null)}
+        onSubmit={(options) => {
+          addCartItem({
+            productId: `preschool-${grade.id}-${selectedPlan.id}`,
+            curriculum: 'Maternelle',
+            gradeId: grade.id,
+            grade: grade.shortLabel,
+            planId: selectedPlan.id,
+            plan: selectedPlan.name,
+            price: selectedPlan.amount,
+            priceLabel: selectedPlan.price,
+            period: selectedPlan.period,
+            options
+          })
+        }}
+      />
     </div>
   )
 }

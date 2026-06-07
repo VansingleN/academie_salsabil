@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import EnrollmentModal from './EnrollmentModal'
+import FormulaGradeSelector from './FormulaGradeSelector'
+import { addCartItem } from '../utils/cart'
+import { buildPricingPlans, formatEuro } from '../utils/pricing'
 import './HighSchoolCurriculum.css'
 
 const grades = [
@@ -10,7 +14,6 @@ const grades = [
     summary:
       "La seconde consolide la culture commune du collège et prépare le choix de la voie et des spécialités. L'élève gagne en autonomie, apprend à argumenter et découvre des méthodes plus exigeantes.",
     weeklyHours: '24 h 30',
-    price: '529 €',
     subjects: [
       {
         name: 'Français',
@@ -69,7 +72,6 @@ const grades = [
     summary:
       "En première générale, l'élève conserve un tronc commun et choisit trois spécialités de quatre heures. Notre accompagnement associe préparation du bac de français, suivi du contrôle continu et consolidation du projet d'orientation.",
     weeklyHours: '25 h 30',
-    price: '569 €',
     subjects: [
       {
         name: 'Français',
@@ -128,7 +130,6 @@ const grades = [
     summary:
       "La terminale est consacrée à la maîtrise des deux spécialités conservées, aux épreuves finales, au Grand oral et à l'orientation post-bac. Le suivi aide l'élève à tenir un rythme exigeant sans perdre de vue son projet.",
     weeklyHours: '25 h',
-    price: '599 €',
     subjects: [
       {
         name: 'Philosophie',
@@ -182,10 +183,101 @@ const grades = [
   }
 ]
 
+// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
+const pricingByGrade = {
+  seconde: { monthly: 529, quarterly: 1675, annual: 4760 },
+  premiere: { monthly: 569, quarterly: 1800, annual: 5120 },
+  terminale: { monthly: 599, quarterly: 1895, annual: 5390 }
+}
+
+const highSchoolFees = { monthly: 130, quarterly: 90 }
+
+const highSchoolTimeSlotField = {
+  name: 'timeSlot',
+  label: 'Tranche horaire',
+  placeholder: 'Choisir une tranche horaire',
+  required: true,
+  options: [
+    { value: 'morning', label: 'Matin' },
+    { value: 'afternoon', label: 'Après-midi' }
+  ]
+}
+
+/*
+const highSchoolTrackField = {
+  name: 'track',
+  label: 'Filière',
+  placeholder: 'Choisir une filière',
+  required: true,
+  options: [
+    { value: 'general', label: 'Voie générale' },
+    { value: 'stmg', label: 'STMG - Management et gestion' },
+    { value: 'sti2d', label: 'STI2D - Industrie et développement durable' },
+    { value: 'st2s', label: 'ST2S - Santé et social' },
+    { value: 'professional', label: 'Voie professionnelle' }
+  ]
+}
+*/
+
+const highSchoolLanguageOptions = [
+  { value: 'spanish', label: 'Espagnol' },
+  { value: 'arabic', label: 'Arabe' }
+]
+
+const highSchoolLv3SurchargeByPlan = {
+  monthly: 25,
+  quarterly: 70,
+  annual: 220
+}
+
+function buildHighSchoolEnrollmentFields(planId) {
+  const surcharge = highSchoolLv3SurchargeByPlan[planId]
+
+  return [
+    highSchoolTimeSlotField,
+    // Décommentez la ligne suivante pour activer le choix de la filière.
+    // highSchoolTrackField,
+    {
+      name: 'lv2',
+      label: 'LV2',
+      placeholder: 'Choisir la LV2',
+      required: true,
+      options: highSchoolLanguageOptions.map((option) => ({
+        ...option,
+        disabled: (values) => values.lv3 === option.value
+      }))
+    },
+    {
+      name: 'lv3',
+      label: 'LV3 (option payante)',
+      placeholder: 'Choisir la LV3',
+      defaultValue: 'none',
+      options: [
+        { value: 'none', label: 'Aucune LV3' },
+        {
+          value: 'spanish',
+          label: `Espagnol (+ ${formatEuro(surcharge)})`,
+          disabled: (values) => values.lv2 === 'spanish'
+        },
+        {
+          value: 'arabic',
+          label: `Arabe (+ ${formatEuro(surcharge)})`,
+          disabled: (values) => values.lv2 === 'arabic'
+        }
+      ]
+    }
+  ]
+}
+
 function HighSchoolCurriculum() {
   const [activeGrade, setActiveGrade] = useState(grades[0].id)
+  const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
+  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], highSchoolFees)
+  const enrollmentFields = selectedPlan
+    ? buildHighSchoolEnrollmentFields(selectedPlan.id)
+    : []
 
   return (
     <div className="high-school-curriculum">
@@ -240,6 +332,58 @@ function HighSchoolCurriculum() {
         </article>
       </section>
 
+      <section className="high-school-formulas" aria-labelledby="high-school-formulas-title">
+        <header className="high-school-formulas-heading">
+          <div>
+            <span>Formules d’inscription</span>
+            <h2 id="high-school-formulas-title">Les formules pour la classe de {grade.label}</h2>
+          </div>
+          <p>
+            Toutes les formules donnent accès au même programme pédagogique. Le
+            tarif et sa dégressivité s’actualisent selon la classe choisie ci-dessus.
+          </p>
+        </header>
+
+        <FormulaGradeSelector
+          grades={grades}
+          activeGrade={activeGrade}
+          onChange={setActiveGrade}
+          ariaLabel="Choisir la classe pour les formules du lycée"
+        />
+
+        <div className="high-school-formulas-grid">
+          {pricingPlans.map((plan) => (
+            <article
+              className={`high-school-formula-card${plan.featured ? ' high-school-formula-card--featured' : ''}`}
+              key={plan.name}
+            >
+              {plan.badge && <span className="high-school-formula-badge">{plan.badge}</span>}
+              <span className="high-school-formula-eyebrow">{plan.eyebrow}</span>
+              <h3>{plan.name}</h3>
+              <div className="high-school-formula-price">
+                <strong>{plan.price}</strong>
+                <span>{plan.period}</span>
+              </div>
+              <p>{plan.description}</p>
+              <ul>
+                {plan.details.map((detail) => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+              <button type="button" onClick={() => setSelectedPlan(plan)}>
+                Choisir cette formule
+              </button>
+            </article>
+          ))}
+        </div>
+
+        <p className="high-school-formulas-note">
+          Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
+          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
+          prix total de la formule.
+        </p>
+      </section>
+
       <section className="high-school-organization" aria-labelledby="high-school-organization-title">
         <header>
           <span>Organisation pédagogique</span>
@@ -262,7 +406,7 @@ function HighSchoolCurriculum() {
               <div className="high-school-hours-row" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{item.price} / mois</span>
+                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -302,6 +446,46 @@ function HighSchoolCurriculum() {
           de l'Éducation nationale et Éduscol, adaptés à notre présentation pédagogique.
         </p>
       </section>
+
+      <EnrollmentModal
+        key={selectedPlan?.id ?? 'closed-high-school-enrollment-modal'}
+        isOpen={Boolean(selectedPlan)}
+        title={`Inscription ${grade.label}`}
+        subtitle="Cursus Lycée"
+        fields={enrollmentFields}
+        summary={(options) => {
+          const optionPrice = options.lv3 && options.lv3 !== 'none'
+            ? highSchoolLv3SurchargeByPlan[selectedPlan.id]
+            : 0
+
+          return {
+            label: `Formule ${selectedPlan.name}${optionPrice ? ' + LV3' : ''}`,
+            value: `${formatEuro(selectedPlan.amount + optionPrice)} ${selectedPlan.period}`
+          }
+        }}
+        onClose={() => setSelectedPlan(null)}
+        onSubmit={(options) => {
+          const optionPrice = options.lv3 && options.lv3 !== 'none'
+            ? highSchoolLv3SurchargeByPlan[selectedPlan.id]
+            : 0
+          const totalPrice = selectedPlan.amount + optionPrice
+
+          addCartItem({
+            productId: `high-school-${grade.id}-${selectedPlan.id}`,
+            curriculum: 'Lycée',
+            gradeId: grade.id,
+            grade: grade.label,
+            planId: selectedPlan.id,
+            plan: selectedPlan.name,
+            basePrice: selectedPlan.amount,
+            optionPrice,
+            price: totalPrice,
+            priceLabel: formatEuro(totalPrice),
+            period: selectedPlan.period,
+            options
+          })
+        }}
+      />
     </div>
   )
 }

@@ -1,0 +1,66 @@
+.formula-grade-selector {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  margin: -12px auto 34px;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid rgba(13, 90, 55, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 253, 249, 0.72);
+}
+
+.formula-grade-selector-label {
+  flex: 0 0 auto;
+  color: #55735d;
+  font: 700 12px/1.2 'Inter', 'Poppins', sans-serif;
+  text-transform: uppercase;
+}
+
+.formula-grade-selector-options {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.formula-grade-option {
+  min-width: 66px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(13, 90, 55, 0.18);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--green-primary);
+  font: 800 12px/1 'Inter', 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.formula-grade-option:hover {
+  border-color: var(--gold);
+  background: rgba(201, 152, 63, 0.1);
+}
+
+.formula-grade-option--active {
+  border-color: var(--green-primary);
+  background: var(--green-primary);
+  color: #fff;
+}
+
+@media (max-width: 700px) {
+  .formula-grade-selector {
+    align-items: stretch;
+    flex-direction: column;
+    margin-bottom: 26px;
+    padding: 14px;
+  }
+
+  .formula-grade-selector-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formula-grade-option {
+    width: 100%;
+  }
+}

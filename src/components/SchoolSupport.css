@@ -118,14 +118,12 @@
 }
 
 .school-subjects-carousel > header {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 30px;
   margin-bottom: 24px;
 }
 
-.school-subjects-carousel > header > span {
+.school-subjects-carousel > header span {
+  display: block;
+  margin-bottom: 8px;
   color: var(--gold);
   font: 800 12px/1.3 'Inter', 'Poppins', sans-serif;
   text-transform: uppercase;
@@ -136,56 +134,127 @@
   margin: 0;
   color: var(--green-primary);
   font: 700 29px/1.15 'Playfair Display', serif;
-  text-align: right;
+}
+
+.school-subjects-slider {
+  position: relative;
+  padding-inline: 34px;
+}
+
+.school-subjects-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.school-subjects-control {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid rgba(201, 152, 63, 0.6);
+  border-radius: 50%;
+  background: rgba(252, 247, 241, 0.94);
+  color: var(--green-primary);
+  box-shadow: 0 10px 30px rgba(13, 90, 55, 0.16);
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translateY(-50%);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.school-subjects-control--previous {
+  left: 5px;
+}
+
+.school-subjects-control--next {
+  right: 5px;
+}
+
+.school-subjects-control > span {
+  width: 11px;
+  height: 11px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+}
+
+.school-subjects-control--previous > span {
+  margin-left: 4px;
+  transform: rotate(-135deg);
+}
+
+.school-subjects-control--next > span {
+  margin-right: 4px;
+  transform: rotate(45deg);
+}
+
+.school-subjects-control:hover {
+  background: var(--green-primary);
+  border-color: var(--green-primary);
+  color: #fff;
+  transform: translateY(-50%) scale(1.07);
+}
+
+.school-subjects-control:focus-visible {
+  outline: 3px solid rgba(201, 152, 63, 0.35);
+  outline-offset: 3px;
 }
 
 .school-subjects-viewport {
-  position: relative;
-  overflow: hidden;
-  padding-block: 6px 12px;
-  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
-}
-
-.school-subjects-track {
-  display: flex;
-  width: max-content;
-  animation: school-subjects-scroll 34s linear infinite;
-}
-
-.school-subjects-viewport:hover .school-subjects-track,
-.school-subjects-viewport:focus-within .school-subjects-track {
-  animation-play-state: paused;
-}
-
-.school-subjects-set {
   display: flex;
   gap: 16px;
-  padding-right: 16px;
+  overflow-x: auto;
+  padding: 6px 2px 18px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.school-subjects-viewport::-webkit-scrollbar {
+  display: none;
 }
 
 .school-subject-card {
-  display: grid;
-  grid-template-columns: 78px 1fr;
-  gap: 18px;
+  display: flex;
+  flex: 0 0 250px;
+  min-height: 320px;
+  padding: 28px 24px;
+  border: 1px solid rgba(201, 152, 63, 0.3);
+  border-radius: 18px;
+  background: rgba(255, 252, 247, 0.9);
+  box-shadow:
+    0 14px 32px rgba(13, 90, 55, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  flex-direction: column;
   align-items: center;
-  flex: 0 0 310px;
-  min-height: 132px;
-  padding: 20px;
-  border: 1px solid rgba(13, 90, 55, 0.18);
-  border-radius: 6px;
-  background: rgba(252, 247, 241, 0.82);
-  box-shadow: 0 10px 28px rgba(13, 90, 55, 0.07);
+  justify-content: center;
+  scroll-snap-align: start;
+  text-align: center;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.school-subject-card:hover {
+  border-color: rgba(201, 152, 63, 0.58);
+  box-shadow:
+    0 20px 38px rgba(13, 90, 55, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-5px);
 }
 
 .school-subject-card h4 {
-  margin: 0 0 7px;
+  margin: 28px 0 10px;
   color: var(--green-primary);
-  font: 700 20px/1.15 'Playfair Display', serif;
+  font: 700 24px/1.15 'Playfair Display', serif;
 }
 
 .school-subject-card p {
+  max-width: 190px;
   color: #56755b;
-  font: 500 12px/1.45 'Inter', 'Poppins', sans-serif;
+  font: 500 13px/1.5 'Inter', 'Poppins', sans-serif;
 }
 
 .school-subject-visual {
@@ -193,9 +262,22 @@
   width: 72px;
   height: 72px;
   overflow: hidden;
-  border: 1px solid rgba(201, 152, 63, 0.34);
+  border: 1px solid rgba(201, 152, 63, 0.42);
   border-radius: 50%;
-  background: rgba(232, 243, 237, 0.72);
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.92), transparent 34%),
+    rgba(232, 243, 237, 0.78);
+  box-shadow:
+    0 9px 20px rgba(13, 90, 55, 0.1),
+    0 0 0 7px rgba(240, 212, 160, 0.16);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.school-subject-card:hover .school-subject-visual {
+  box-shadow:
+    0 12px 24px rgba(13, 90, 55, 0.14),
+    0 0 0 9px rgba(240, 212, 160, 0.22);
+  transform: scale(1.04);
 }
 
 .school-subject-visual span,
@@ -402,12 +484,6 @@
   border-block: 7px double var(--gold);
 }
 
-@keyframes school-subjects-scroll {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 @keyframes french-page-left {
   50% {
     transform: perspective(50px) rotateY(-18deg);
@@ -551,13 +627,21 @@
     min-height: auto;
   }
 
-  .school-subjects-carousel > header {
-    display: block;
+  .school-subjects-slider {
+    padding-inline: 28px;
   }
 
-  .school-subjects-carousel h3 {
-    margin-top: 8px;
-    text-align: left;
+  .school-subjects-control {
+    width: 46px;
+    height: 46px;
+  }
+
+  .school-subjects-control--previous {
+    left: 1px;
+  }
+
+  .school-subjects-control--next {
+    right: 1px;
   }
 
   .school-support-custom {
@@ -589,17 +673,14 @@
   }
 
   .school-subject-card {
-    grid-template-columns: 64px 1fr;
-    flex-basis: 270px;
-    min-height: 118px;
-    padding: 16px;
+    flex-basis: min(78vw, 250px);
+    min-height: 300px;
+    padding: 24px 18px;
   }
 
   .school-subject-visual {
-    width: 60px;
-    height: 60px;
-    transform: scale(0.84);
-    transform-origin: left center;
+    width: 72px;
+    height: 72px;
   }
 
   .school-support-custom {
@@ -612,7 +693,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .school-subjects-track,
   .school-subject-visual *,
   .school-subject-visual::before,
   .school-subject-visual::after {
@@ -620,11 +700,6 @@
   }
 
   .school-subjects-viewport {
-    overflow-x: auto;
-    mask-image: none;
-  }
-
-  .school-subjects-set[aria-hidden='true'] {
-    display: none;
+    scroll-behavior: auto;
   }
 }

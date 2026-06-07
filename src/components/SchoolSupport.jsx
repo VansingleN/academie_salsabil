@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './SchoolSupport.css'
 
@@ -63,12 +64,9 @@ const supportedSubjects = [
   }
 ]
 
-function SubjectCard({ subject, duplicate = false }) {
+function SubjectCard({ subject }) {
   return (
-    <article
-      className={`school-subject-card school-subject-card--${subject.type}`}
-      aria-hidden={duplicate || undefined}
-    >
+    <article className={`school-subject-card school-subject-card--${subject.type}`}>
       <div className="school-subject-visual" aria-hidden="true">
         <span></span>
         <i></i>
@@ -84,6 +82,21 @@ function SubjectCard({ subject, duplicate = false }) {
 
 function SchoolSupport() {
   const navigate = useNavigate()
+  const subjectsViewportRef = useRef(null)
+
+  const scrollSubjects = (direction) => {
+    const viewport = subjectsViewportRef.current
+    if (!viewport) return
+
+    const card = viewport.querySelector('.school-subject-card')
+    const gap = 16
+    const distance = (card?.getBoundingClientRect().width ?? 260) + gap
+
+    viewport.scrollBy({
+      left: direction * distance,
+      behavior: 'smooth'
+    })
+  }
 
   return (
     <section className="school-support" aria-labelledby="school-support-title">
@@ -122,18 +135,30 @@ function SchoolSupport() {
             <h3 id="school-subjects-title">Sept matières, une même exigence de progression</h3>
           </header>
 
-          <div className="school-subjects-viewport">
-            <div className="school-subjects-track">
-              <div className="school-subjects-set">
-                {supportedSubjects.map((subject) => (
-                  <SubjectCard subject={subject} key={subject.name} />
-                ))}
-              </div>
-              <div className="school-subjects-set" aria-hidden="true">
-                {supportedSubjects.map((subject) => (
-                  <SubjectCard subject={subject} duplicate key={`duplicate-${subject.name}`} />
-                ))}
-              </div>
+          <div className="school-subjects-slider">
+            <div className="school-subjects-controls" aria-label="Navigation des matières">
+              <button
+                className="school-subjects-control school-subjects-control--previous"
+                type="button"
+                aria-label="Voir les matières précédentes"
+                onClick={() => scrollSubjects(-1)}
+              >
+                <span aria-hidden="true"></span>
+              </button>
+              <button
+                className="school-subjects-control school-subjects-control--next"
+                type="button"
+                aria-label="Voir les matières suivantes"
+                onClick={() => scrollSubjects(1)}
+              >
+                <span aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <div className="school-subjects-viewport" ref={subjectsViewportRef}>
+              {supportedSubjects.map((subject) => (
+                <SubjectCard subject={subject} key={subject.name} />
+              ))}
             </div>
           </div>
         </section>

@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import EnrollmentModal from './EnrollmentModal'
+import FormulaGradeSelector from './FormulaGradeSelector'
+import { addCartItem } from '../utils/cart'
+import { buildPricingPlans, formatEuro } from '../utils/pricing'
 import './PrimaryCurriculum.css'
 
 const grades = [
@@ -10,7 +14,6 @@ const grades = [
     summary:
       "Le CP installe les bases de la lecture, de l'écriture et du calcul. Les apprentissages sont explicites, progressifs et repris quotidiennement afin que chaque enfant avance avec assurance.",
     weeklyHours: '19 h',
-    price: '329 €',
     subjects: [
       {
         name: 'Français',
@@ -45,7 +48,6 @@ const grades = [
     summary:
       "Le CE1 rend les acquis du CP plus sûrs et plus rapides. L'élève gagne en fluidité de lecture, développe son expression écrite et apprend à choisir des stratégies de calcul adaptées.",
     weeklyHours: '19 h',
-    price: '339 €',
     subjects: [
       {
         name: 'Français',
@@ -80,7 +82,6 @@ const grades = [
     summary:
       "Le CE2 achève le cycle des apprentissages fondamentaux. L'enfant apprend à lire pour comprendre et apprendre, à rédiger avec davantage d'autonomie et à expliquer ses démarches.",
     weeklyHours: '19 h',
-    price: '349 €',
     subjects: [
       {
         name: 'Français',
@@ -115,7 +116,6 @@ const grades = [
     summary:
       "Le CM1 ouvre le cycle de consolidation. Les savoirs fondamentaux sont mobilisés dans toutes les disciplines et l'élève apprend à rechercher, argumenter, expérimenter et organiser son travail.",
     weeklyHours: '19 h',
-    price: '369 €',
     subjects: [
       {
         name: 'Français',
@@ -156,7 +156,6 @@ const grades = [
     summary:
       "Le CM2 consolide les méthodes et les connaissances nécessaires à l'entrée en sixième. L'élève développe son autonomie, apprend à justifier ses réponses et mène des travaux plus longs.",
     weeklyHours: '19 h',
-    price: '389 €',
     subjects: [
       {
         name: 'Français',
@@ -192,10 +191,36 @@ const grades = [
   }
 ]
 
+// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
+const pricingByGrade = {
+  cp: { monthly: 329, quarterly: 1040, annual: 2960 },
+  ce1: { monthly: 339, quarterly: 1075, annual: 3050 },
+  ce2: { monthly: 349, quarterly: 1100, annual: 3140 },
+  cm1: { monthly: 369, quarterly: 1165, annual: 3320 },
+  cm2: { monthly: 389, quarterly: 1230, annual: 3500 }
+}
+
+const primaryFees = { monthly: 90, quarterly: 60 }
+
+const primaryEnrollmentFields = [
+  {
+    name: 'timeSlot',
+    label: 'Tranche horaire',
+    placeholder: 'Choisir une tranche horaire',
+    required: true,
+    options: [
+      { value: 'morning', label: 'Matin' },
+      { value: 'afternoon', label: 'Après-midi' }
+    ]
+  }
+]
+
 function PrimaryCurriculum() {
   const [activeGrade, setActiveGrade] = useState(grades[0].id)
+  const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
+  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], primaryFees)
 
   return (
     <div className="primary-curriculum">
@@ -251,6 +276,59 @@ function PrimaryCurriculum() {
         </article>
       </section>
 
+      <section className="primary-formulas" aria-labelledby="primary-formulas-title">
+        <header className="primary-formulas-heading">
+          <div>
+            <span>Formules d’inscription</span>
+            <h2 id="primary-formulas-title">Les formules pour la classe de {grade.label}</h2>
+          </div>
+          <p>
+            Les trois formules donnent accès au même programme pédagogique. Seuls le
+            calendrier de paiement, les frais de dossier et le niveau de dégressivité
+            varient.
+          </p>
+        </header>
+
+        <FormulaGradeSelector
+          grades={grades}
+          activeGrade={activeGrade}
+          onChange={setActiveGrade}
+          ariaLabel="Choisir la classe pour les formules du primaire"
+        />
+
+        <div className="primary-formulas-grid">
+          {pricingPlans.map((plan) => (
+            <article
+              className={`primary-formula-card${plan.featured ? ' primary-formula-card--featured' : ''}`}
+              key={plan.name}
+            >
+              {plan.badge && <span className="primary-formula-badge">{plan.badge}</span>}
+              <span className="primary-formula-eyebrow">{plan.eyebrow}</span>
+              <h3>{plan.name}</h3>
+              <div className="primary-formula-price">
+                <strong>{plan.price}</strong>
+                <span>{plan.period}</span>
+              </div>
+              <p>{plan.description}</p>
+              <ul>
+                {plan.details.map((detail) => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+              <button type="button" onClick={() => setSelectedPlan(plan)}>
+                Choisir cette formule
+              </button>
+            </article>
+          ))}
+        </div>
+
+        <p className="primary-formulas-note">
+          Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
+          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
+          prix total de la formule.
+        </p>
+      </section>
+
       <section className="primary-organization" aria-labelledby="primary-organization-title">
         <header>
           <span>Organisation pédagogique</span>
@@ -273,7 +351,7 @@ function PrimaryCurriculum() {
               <div className="primary-hours-row" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{item.price} / mois</span>
+                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -313,6 +391,33 @@ function PrimaryCurriculum() {
           nationale et Éduscol, adaptés à notre présentation pédagogique.
         </p>
       </section>
+
+      <EnrollmentModal
+        key={selectedPlan?.id ?? 'closed-primary-enrollment-modal'}
+        isOpen={Boolean(selectedPlan)}
+        title={`Inscription ${grade.label}`}
+        subtitle="Cursus Primaire"
+        fields={primaryEnrollmentFields}
+        summary={{
+          label: `Formule ${selectedPlan?.name ?? ''}`,
+          value: selectedPlan ? `${selectedPlan.price} ${selectedPlan.period}` : ''
+        }}
+        onClose={() => setSelectedPlan(null)}
+        onSubmit={(options) => {
+          addCartItem({
+            productId: `primary-${grade.id}-${selectedPlan.id}`,
+            curriculum: 'Primaire',
+            gradeId: grade.id,
+            grade: grade.label,
+            planId: selectedPlan.id,
+            plan: selectedPlan.name,
+            price: selectedPlan.amount,
+            priceLabel: selectedPlan.price,
+            period: selectedPlan.period,
+            options
+          })
+        }}
+      />
     </div>
   )
 }

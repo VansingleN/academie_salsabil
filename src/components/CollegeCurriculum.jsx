@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import EnrollmentModal from './EnrollmentModal'
+import FormulaGradeSelector from './FormulaGradeSelector'
+import { addCartItem } from '../utils/cart'
+import { buildPricingPlans, formatEuro } from '../utils/pricing'
 import './CollegeCurriculum.css'
 
 const grades = [
@@ -10,7 +14,6 @@ const grades = [
     summary:
       "La sixième assure la transition avec l'école primaire. L'élève consolide les fondamentaux, découvre les méthodes du collège et apprend à organiser son travail dans plusieurs disciplines.",
     weeklyHours: '19 h',
-    price: '449 €',
     subjects: [
       {
         name: 'Français',
@@ -63,7 +66,6 @@ const grades = [
     summary:
       "La cinquième ouvre le cycle des approfondissements. Les élèves développent leur autonomie, apprennent à justifier leurs démarches et relient davantage les connaissances entre elles.",
     weeklyHours: '18 h 30',
-    price: '459 €',
     subjects: [
       {
         name: 'Français',
@@ -116,7 +118,6 @@ const grades = [
     summary:
       "En quatrième, les raisonnements deviennent plus complexes. L'élève apprend à argumenter, modéliser, expérimenter et travailler sur des productions plus longues et plus autonomes.",
     weeklyHours: '18 h 30',
-    price: '459 €',
     subjects: [
       {
         name: 'Français',
@@ -169,7 +170,6 @@ const grades = [
     summary:
       "La troisième consolide les acquis du collège, prépare le diplôme national du brevet et accompagne l'élève dans son orientation vers le lycée général, technologique ou professionnel.",
     weeklyHours: '18 h 30',
-    price: '489 €',
     subjects: [
       {
         name: 'Français',
@@ -217,10 +217,87 @@ const grades = [
   }
 ]
 
+// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
+const pricingByGrade = {
+  '6e': { monthly: 449, quarterly: 1420, annual: 4040 },
+  '5e': { monthly: 459, quarterly: 1455, annual: 4130 },
+  '4e': { monthly: 469, quarterly: 1485, annual: 4220 },
+  '3e': { monthly: 489, quarterly: 1545, annual: 4400 }
+}
+
+const collegeFees = { monthly: 110, quarterly: 80 }
+
+const collegeTimeSlotField = {
+  name: 'timeSlot',
+  label: 'Tranche horaire',
+  placeholder: 'Choisir une tranche horaire',
+  required: true,
+  options: [
+    { value: 'morning', label: 'Matin' },
+    { value: 'afternoon', label: 'Après-midi' }
+  ]
+}
+
+const languageOptions = [
+  { value: 'spanish', label: 'Espagnol' },
+  { value: 'arabic', label: 'Arabe' }
+]
+
+// Supplément LV3 selon le rythme de paiement choisi.
+const lv3SurchargeByPlan = {
+  monthly: 20,
+  quarterly: 55,
+  annual: 180
+}
+
+function buildCollegeEnrollmentFields(gradeId, planId) {
+  if (gradeId === '6e') return [collegeTimeSlotField]
+
+  const surcharge = lv3SurchargeByPlan[planId]
+
+  return [
+    collegeTimeSlotField,
+    {
+      name: 'lv2',
+      label: 'LV2',
+      placeholder: 'Choisir la LV2',
+      required: true,
+      options: languageOptions.map((option) => ({
+        ...option,
+        disabled: (values) => values.lv3 === option.value
+      }))
+    },
+    {
+      name: 'lv3',
+      label: 'LV3 (option payante)',
+      placeholder: 'Choisir la LV3',
+      defaultValue: 'none',
+      options: [
+        { value: 'none', label: 'Aucune LV3' },
+        {
+          value: 'spanish',
+          label: `Espagnol (+ ${formatEuro(surcharge)})`,
+          disabled: (values) => values.lv2 === 'spanish'
+        },
+        {
+          value: 'arabic',
+          label: `Arabe (+ ${formatEuro(surcharge)})`,
+          disabled: (values) => values.lv2 === 'arabic'
+        }
+      ]
+    }
+  ]
+}
+
 function CollegeCurriculum() {
   const [activeGrade, setActiveGrade] = useState(grades[0].id)
+  const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
+  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], collegeFees)
+  const enrollmentFields = selectedPlan
+    ? buildCollegeEnrollmentFields(grade.id, selectedPlan.id)
+    : []
 
   return (
     <div className="college-curriculum">
@@ -276,6 +353,58 @@ function CollegeCurriculum() {
         </article>
       </section>
 
+      <section className="college-formulas" aria-labelledby="college-formulas-title">
+        <header className="college-formulas-heading">
+          <div>
+            <span>Formules d’inscription</span>
+            <h2 id="college-formulas-title">Les formules pour la classe de {grade.label}</h2>
+          </div>
+          <p>
+            Toutes les formules donnent accès au même programme pédagogique. Le
+            tarif et sa dégressivité s’actualisent selon la classe choisie ci-dessus.
+          </p>
+        </header>
+
+        <FormulaGradeSelector
+          grades={grades}
+          activeGrade={activeGrade}
+          onChange={setActiveGrade}
+          ariaLabel="Choisir la classe pour les formules du collège"
+        />
+
+        <div className="college-formulas-grid">
+          {pricingPlans.map((plan) => (
+            <article
+              className={`college-formula-card${plan.featured ? ' college-formula-card--featured' : ''}`}
+              key={plan.name}
+            >
+              {plan.badge && <span className="college-formula-badge">{plan.badge}</span>}
+              <span className="college-formula-eyebrow">{plan.eyebrow}</span>
+              <h3>{plan.name}</h3>
+              <div className="college-formula-price">
+                <strong>{plan.price}</strong>
+                <span>{plan.period}</span>
+              </div>
+              <p>{plan.description}</p>
+              <ul>
+                {plan.details.map((detail) => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+              <button type="button" onClick={() => setSelectedPlan(plan)}>
+                Choisir cette formule
+              </button>
+            </article>
+          ))}
+        </div>
+
+        <p className="college-formulas-note">
+          Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
+          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
+          prix total de la formule.
+        </p>
+      </section>
+
       <section className="college-organization" aria-labelledby="college-organization-title">
         <header>
           <span>Organisation pédagogique</span>
@@ -298,7 +427,7 @@ function CollegeCurriculum() {
               <div className="college-hours-row" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{item.price} / mois</span>
+                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -338,6 +467,46 @@ function CollegeCurriculum() {
           nationale et Éduscol, adaptés à notre présentation pédagogique.
         </p>
       </section>
+
+      <EnrollmentModal
+        key={selectedPlan?.id ?? 'closed-college-enrollment-modal'}
+        isOpen={Boolean(selectedPlan)}
+        title={`Inscription ${grade.label}`}
+        subtitle="Cursus Collège"
+        fields={enrollmentFields}
+        summary={(options) => {
+          const optionPrice = options.lv3 && options.lv3 !== 'none'
+            ? lv3SurchargeByPlan[selectedPlan.id]
+            : 0
+
+          return {
+            label: `Formule ${selectedPlan.name}${optionPrice ? ' + LV3' : ''}`,
+            value: `${formatEuro(selectedPlan.amount + optionPrice)} ${selectedPlan.period}`
+          }
+        }}
+        onClose={() => setSelectedPlan(null)}
+        onSubmit={(options) => {
+          const optionPrice = options.lv3 && options.lv3 !== 'none'
+            ? lv3SurchargeByPlan[selectedPlan.id]
+            : 0
+          const totalPrice = selectedPlan.amount + optionPrice
+
+          addCartItem({
+            productId: `college-${grade.id}-${selectedPlan.id}`,
+            curriculum: 'Collège',
+            gradeId: grade.id,
+            grade: grade.label,
+            planId: selectedPlan.id,
+            plan: selectedPlan.name,
+            basePrice: selectedPlan.amount,
+            optionPrice,
+            price: totalPrice,
+            priceLabel: formatEuro(totalPrice),
+            period: selectedPlan.period,
+            options
+          })
+        }}
+      />
     </div>
   )
 }

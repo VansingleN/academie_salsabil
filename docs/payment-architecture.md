@@ -37,3 +37,7 @@ uniquement le devis recalculé par la fonction serveur.
 La prochaine étape Stripe devra appeler à nouveau le même moteur serveur au
 moment de créer la session Checkout. Elle ne devra jamais accepter les totaux
 affichés ou stockés côté client.
+
+La fonction déclare elle-même le chemin public `/api/cart-quote`. La redirection
+présente dans `netlify.toml` reste une compatibilité supplémentaire, mais le
+fonctionnement du panier ne dépend plus d'elle seule.

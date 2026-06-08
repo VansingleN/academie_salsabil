@@ -31,6 +31,8 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
 - Migration automatique des anciens articles déjà présents dans le stockage local.
 - Les totaux du récapitulatif utilisent la réponse serveur dès que le devis est validé.
 - La configuration Vite conserve GitHub Pages tout en préparant un déploiement Netlify à la racine.
+- La route `/api/cart-quote` est désormais déclarée directement par la Netlify Function
+  pour garantir son exposition sur le site public.
 
 ## Changements depuis le commit 11a8b58
 

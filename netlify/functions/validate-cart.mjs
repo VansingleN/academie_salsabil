@@ -47,3 +47,9 @@ export default async function validateCart(request) {
     )
   }
 }
+
+// Netlify expose directement cette fonction sur l'URL stable utilisée par le front.
+// Cette déclaration évite de dépendre uniquement d'une règle de redirection externe.
+export const config = {
+  path: '/api/cart-quote'
+}

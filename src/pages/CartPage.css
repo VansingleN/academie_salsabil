@@ -258,6 +258,23 @@
   line-height: 1.55;
 }
 
+.cart-checkout-warning,
+.cart-checkout-error {
+  margin: -8px 0 18px;
+  padding: 11px 12px;
+  border-left: 3px solid var(--gold);
+  background: rgba(255, 249, 231, 0.72);
+  color: #745e32;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cart-checkout-error {
+  border-left-color: #9a5144;
+  background: rgba(255, 240, 237, 0.76);
+  color: #7b4339;
+}
+
 .cart-summary > button:not(.cart-clear-button),
 .cart-page--empty > button {
   width: 100%;

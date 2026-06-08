@@ -1,0 +1,92 @@
+.payment-status {
+  display: flex;
+  width: min(720px, calc(100% - 36px));
+  min-height: 68vh;
+  margin: 0 auto;
+  padding: 72px 0 90px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #486156;
+  text-align: center;
+}
+
+.payment-status-symbol {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 24px;
+  place-items: center;
+  border: 1px solid rgba(13, 90, 55, 0.28);
+  border-radius: 50%;
+  background: rgba(231, 244, 235, 0.82);
+  color: var(--green-primary);
+  font: 700 26px/1 var(--sans);
+}
+
+.payment-status > span {
+  color: var(--gold);
+  font: 800 11px/1.2 var(--sans);
+  text-transform: uppercase;
+}
+
+.payment-status h1 {
+  margin: 12px 0 20px;
+  color: var(--green-primary);
+  font-size: clamp(38px, 6vw, 62px);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.payment-status > p {
+  max-width: 620px;
+  line-height: 1.75;
+}
+
+.payment-status small {
+  max-width: 100%;
+  margin-top: 22px;
+  overflow-wrap: anywhere;
+  color: #73867d;
+}
+
+.payment-status-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.payment-status-actions a,
+.payment-status-actions button {
+  display: inline-flex;
+  min-height: 46px;
+  padding: 0 20px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--green-primary);
+  border-radius: 5px;
+  background: var(--green-primary);
+  color: #fff;
+  font: 800 13px/1.2 var(--sans);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.payment-status-actions a + a,
+.payment-status-actions button {
+  background: transparent;
+  color: var(--green-primary);
+}
+
+.payment-status-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.payment-status-notice {
+  margin-top: 18px;
+  color: #9a3f34;
+  font-size: 14px;
+}

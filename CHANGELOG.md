@@ -23,6 +23,17 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
 - Ajout de tests automatisés contre l'injection de prix et les options invalides.
 - Documentation de l'architecture du devis serveur et de son futur raccordement à Stripe.
 - Remplacement du README générique de Vite par le changelog principal du projet.
+- Ajout de Stripe Checkout hébergé en mode test.
+- Ajout d'une Netlify Function qui recrée et revalide chaque session Checkout.
+- Ajout des pages de retour après réussite ou annulation d'un paiement test.
+- Ajout de tests automatisés des paramètres envoyés à Stripe.
+- Ajout d'un dépôt de commandes interchangeable avec implémentations mémoire et Netlify Blobs.
+- Ajout d'un webhook Stripe signé et idempotent pour les paiements, échecs,
+  expirations et suppressions d'abonnement.
+- Ajout d'une vérification serveur des sessions Stripe utilisée par la page de succès.
+- Préparation du portail client Stripe, désactivé par défaut.
+- Ajout de tests automatisés de signature, doublons, transitions de commande,
+  vérification des sessions et ouverture du portail.
 
 ### Modifié
 
@@ -33,6 +44,13 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
 - La configuration Vite conserve GitHub Pages tout en préparant un déploiement Netlify à la racine.
 - La route `/api/cart-quote` est désormais déclarée directement par la Netlify Function
   pour garantir son exposition sur le site public.
+- Le bouton du panier ouvre Stripe uniquement après validation du devis serveur.
+- Les clés Stripe live sont refusées tant que l'intégration reste en phase de test.
+- Les paniers mélangeant plusieurs formules sont temporairement bloqués avant Checkout.
+- Chaque session Checkout crée désormais une commande serveur identifiée dans
+  les métadonnées Stripe.
+- La page de succès n'affiche une confirmation qu'après validation persistante
+  par le webhook, jamais sur la seule base de la redirection.
 
 ## Changements depuis le commit 11a8b58
 

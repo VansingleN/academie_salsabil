@@ -8,9 +8,13 @@
     "build": "vite build",
     "lint": "eslint .",
     "test:quote": "node scripts/test-cart-quote.mjs",
+    "test:checkout": "node scripts/test-stripe-checkout.mjs",
+    "test:webhook": "node scripts/test-stripe-webhook.mjs",
+    "test:session": "node scripts/test-stripe-session.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@netlify/blobs": "^10.7.9",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.17.0"

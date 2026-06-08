@@ -15,6 +15,7 @@ import CollegePage from './pages/CollegePage'
 import LyceePage from './pages/LyceePage'
 import IefPage from './pages/IefPage'
 import CartPage from './pages/CartPage'
+import PaymentStatusPage from './pages/PaymentStatusPage'
 import './App.css'
 
 function ScrollToLocation() {
@@ -66,6 +67,8 @@ function App() {
           <Route path="/instruction-en-famille" element={<IefPage />} />
           {/* Le panier possède sa propre URL afin de pouvoir y revenir avec précédent/suivant. */}
           <Route path="/panier" element={<CartPage />} />
+          <Route path="/paiement/succes" element={<PaymentStatusPage status="success" />} />
+          <Route path="/paiement/annule" element={<PaymentStatusPage status="cancelled" />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

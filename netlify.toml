@@ -11,6 +11,26 @@
   to = "/.netlify/functions/validate-cart"
   status = 200
 
+[[redirects]]
+  from = "/api/create-checkout-session"
+  to = "/.netlify/functions/create-checkout-session"
+  status = 200
+
+[[redirects]]
+  from = "/api/stripe-webhook"
+  to = "/.netlify/functions/stripe-webhook"
+  status = 200
+
+[[redirects]]
+  from = "/api/verify-checkout-session"
+  to = "/.netlify/functions/verify-checkout-session"
+  status = 200
+
+[[redirects]]
+  from = "/api/create-customer-portal"
+  to = "/.netlify/functions/create-customer-portal"
+  status = 200
+
 # HashRouter gère déjà les routes du site, mais ce fallback protège les accès directs.
 [[redirects]]
   from = "/*"

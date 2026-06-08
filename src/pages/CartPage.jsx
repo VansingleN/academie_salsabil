@@ -19,6 +19,7 @@ import {
 } from '../data/offerCatalog'
 import { formatEuro } from '../utils/pricing'
 import { requestCartQuote } from '../utils/cartQuoteApi'
+import { requestCheckoutSession } from '../utils/checkoutApi'
 import './CartPage.css'
 
 // Un éditeur correspond à une inscription. Il garde un état local pour rendre
@@ -158,6 +159,8 @@ function CartPage() {
   const [quoteError, setQuoteError] = useState('')
   const [quoteFingerprint, setQuoteFingerprint] = useState('')
   const [quoteRequestVersion, setQuoteRequestVersion] = useState(0)
+  const [checkoutStatus, setCheckoutStatus] = useState('idle')
+  const [checkoutError, setCheckoutError] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -230,6 +233,20 @@ function CartPage() {
     removeCartItem(cartItemId)
   }
 
+  const handleCheckout = async () => {
+    setCheckoutStatus('loading')
+    setCheckoutError('')
+
+    try {
+      const checkout = await requestCheckoutSession(cart)
+      // Stripe héberge le formulaire bancaire : aucune donnée de carte ne touche notre site.
+      window.location.assign(checkout.checkoutUrl)
+    } catch (error) {
+      setCheckoutStatus('error')
+      setCheckoutError(error.message)
+    }
+  }
+
   const quoteMatchesCart = serverQuote?.cartFingerprint === cartFingerprint
   const quoteRequestMatchesCart = quoteFingerprint === cartFingerprint
   const displayedQuoteStatus = hasInvalidItem
@@ -239,6 +256,16 @@ function CartPage() {
       : 'idle'
   // Les totaux serveur remplacent les calculs d'aperçu uniquement pour ce panier précis.
   const displayedTotals = quoteMatchesCart ? serverQuote.groupedTotals : groupedTotals
+  const billingPlanCount = serverQuote
+    ? new Set(serverQuote.items.map((item) => item.planId)).size
+    : 0
+  const hasMixedBillingPlans = quoteMatchesCart && billingPlanCount > 1
+  const canStartCheckout = (
+    displayedQuoteStatus === 'success'
+    && quoteMatchesCart
+    && !hasMixedBillingPlans
+    && checkoutStatus !== 'loading'
+  )
 
   if (cart.length === 0) {
     return (
@@ -314,20 +341,37 @@ function CartPage() {
           </div>
 
           <div className="cart-summary-note">
-            <strong>À définir avant paiement</strong>
+            <strong>Checkout en mode test</strong>
             <p>
-              Les échéances, acomptes, frais de dossier et taxes seront configurés
-              dans le catalogue sans modifier ce panier.
+              Aucune carte ne sera débitée. Les durées d’abonnement, acomptes, frais
+              de dossier et taxes restent à valider avant la production.
             </p>
           </div>
 
-          {/* Ce bouton sera relié à la Netlify Function de création Stripe Checkout. */}
-          <button type="button" disabled>
+          {hasMixedBillingPlans && (
+            <p className="cart-checkout-warning">
+              Pour ce premier test, choisissez la même formule pour toutes les
+              inscriptions avant de continuer.
+            </p>
+          )}
+
+          {checkoutStatus === 'error' && (
+            <p className="cart-checkout-error" role="alert">{checkoutError}</p>
+          )}
+
+          {/* La fonction serveur recalcule encore le panier avant de contacter Stripe. */}
+          <button type="button" disabled={!canStartCheckout} onClick={handleCheckout}>
             {hasInvalidItem
               ? 'Complétez vos inscriptions'
               : displayedQuoteStatus === 'loading'
                 ? 'Vérification en cours'
-                : 'Paiement bientôt disponible'}
+                : hasMixedBillingPlans
+                  ? 'Harmonisez les formules'
+                  : checkoutStatus === 'loading'
+                    ? 'Ouverture de Stripe…'
+                    : displayedQuoteStatus === 'success'
+                      ? 'Tester le paiement Stripe'
+                      : 'Paiement indisponible'}
           </button>
           <button className="cart-clear-button" type="button" onClick={clearCart}>
             Vider le panier

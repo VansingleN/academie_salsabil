@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import EnrollmentModal from './EnrollmentModal'
 import FormulaGradeSelector from './FormulaGradeSelector'
 import { addCartItem } from '../utils/cart'
-import { buildPricingPlans, formatEuro } from '../utils/pricing'
+import { formatEuro } from '../utils/pricing'
+import {
+  getCurriculumPricing,
+  getOfferId,
+  getOptionPrice,
+  getPricingPlans
+} from '../data/offerCatalog'
 import './HighSchoolCurriculum.css'
 
+// Les contenus académiques restent locaux ; la tarification est lue dans offerCatalog.
 const grades = [
   {
     id: 'seconde',
@@ -183,15 +190,6 @@ const grades = [
   }
 ]
 
-// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
-const pricingByGrade = {
-  seconde: { monthly: 529, quarterly: 1675, annual: 4760 },
-  premiere: { monthly: 569, quarterly: 1800, annual: 5120 },
-  terminale: { monthly: 599, quarterly: 1895, annual: 5390 }
-}
-
-const highSchoolFees = { monthly: 130, quarterly: 90 }
-
 const highSchoolTimeSlotField = {
   name: 'timeSlot',
   label: 'Tranche horaire',
@@ -224,14 +222,9 @@ const highSchoolLanguageOptions = [
   { value: 'arabic', label: 'Arabe' }
 ]
 
-const highSchoolLv3SurchargeByPlan = {
-  monthly: 25,
-  quarterly: 70,
-  annual: 220
-}
-
 function buildHighSchoolEnrollmentFields(planId) {
-  const surcharge = highSchoolLv3SurchargeByPlan[planId]
+  // Le supplément LV3 suit automatiquement la formule mensuelle, trimestrielle ou annuelle.
+  const surcharge = getOptionPrice('highSchool', 'lv3', planId)
 
   return [
     highSchoolTimeSlotField,
@@ -274,7 +267,7 @@ function HighSchoolCurriculum() {
   const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
-  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], highSchoolFees)
+  const pricingPlans = getPricingPlans('highSchool', grade.id)
   const enrollmentFields = selectedPlan
     ? buildHighSchoolEnrollmentFields(selectedPlan.id)
     : []
@@ -406,7 +399,7 @@ function HighSchoolCurriculum() {
               <div className="high-school-hours-row" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
+                <span>{formatEuro(getCurriculumPricing('highSchool', item.id).pricing.monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -455,7 +448,7 @@ function HighSchoolCurriculum() {
         fields={enrollmentFields}
         summary={(options) => {
           const optionPrice = options.lv3 && options.lv3 !== 'none'
-            ? highSchoolLv3SurchargeByPlan[selectedPlan.id]
+            ? getOptionPrice('highSchool', 'lv3', selectedPlan.id)
             : 0
 
           return {
@@ -465,24 +458,10 @@ function HighSchoolCurriculum() {
         }}
         onClose={() => setSelectedPlan(null)}
         onSubmit={(options) => {
-          const optionPrice = options.lv3 && options.lv3 !== 'none'
-            ? highSchoolLv3SurchargeByPlan[selectedPlan.id]
-            : 0
-          const totalPrice = selectedPlan.amount + optionPrice
-
+          // Aucun prix issu de la modale n'est enregistré dans localStorage.
           addCartItem({
-            productId: `high-school-${grade.id}-${selectedPlan.id}`,
-            curriculum: 'Lycée',
-            gradeId: grade.id,
-            grade: grade.label,
-            planId: selectedPlan.id,
-            plan: selectedPlan.name,
-            basePrice: selectedPlan.amount,
-            optionPrice,
-            price: totalPrice,
-            priceLabel: formatEuro(totalPrice),
-            period: selectedPlan.period,
-            options
+            offerId: getOfferId('highSchool', grade.id, selectedPlan.id),
+            selections: options
           })
         }}
       />

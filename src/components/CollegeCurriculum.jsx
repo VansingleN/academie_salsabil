@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import EnrollmentModal from './EnrollmentModal'
 import FormulaGradeSelector from './FormulaGradeSelector'
 import { addCartItem } from '../utils/cart'
-import { buildPricingPlans, formatEuro } from '../utils/pricing'
+import { formatEuro } from '../utils/pricing'
+import {
+  getCurriculumPricing,
+  getOfferId,
+  getOptionPrice,
+  getPricingPlans
+} from '../data/offerCatalog'
 import './CollegeCurriculum.css'
 
+// Le programme détaillé reste propre au composant ; les données commerciales sont partagées.
 const grades = [
   {
     id: '6e',
@@ -217,16 +224,6 @@ const grades = [
   }
 ]
 
-// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
-const pricingByGrade = {
-  '6e': { monthly: 449, quarterly: 1420, annual: 4040 },
-  '5e': { monthly: 459, quarterly: 1455, annual: 4130 },
-  '4e': { monthly: 469, quarterly: 1485, annual: 4220 },
-  '3e': { monthly: 489, quarterly: 1545, annual: 4400 }
-}
-
-const collegeFees = { monthly: 110, quarterly: 80 }
-
 const collegeTimeSlotField = {
   name: 'timeSlot',
   label: 'Tranche horaire',
@@ -243,17 +240,27 @@ const languageOptions = [
   { value: 'arabic', label: 'Arabe' }
 ]
 
-// Supplément LV3 selon le rythme de paiement choisi.
-const lv3SurchargeByPlan = {
-  monthly: 20,
-  quarterly: 55,
-  annual: 180
-}
-
 function buildCollegeEnrollmentFields(gradeId, planId) {
-  if (gradeId === '6e') return [collegeTimeSlotField]
+  // La 6e propose l'arabe seul ; à partir de la 5e, la modale bascule vers LV2/LV3.
+  if (gradeId === '6e') {
+    const surcharge = getOptionPrice('college', 'arabicLanguage', planId)
 
-  const surcharge = lv3SurchargeByPlan[planId]
+    return [
+      collegeTimeSlotField,
+      {
+        name: 'arabicLanguage',
+        label: 'Langue arabe (option payante)',
+        placeholder: 'Choisir une option',
+        defaultValue: 'none',
+        options: [
+          { value: 'none', label: 'Sans langue arabe' },
+          { value: 'arabic', label: `Ajouter la langue arabe (+ ${formatEuro(surcharge)})` }
+        ]
+      }
+    ]
+  }
+
+  const surcharge = getOptionPrice('college', 'lv3', planId)
 
   return [
     collegeTimeSlotField,
@@ -294,7 +301,7 @@ function CollegeCurriculum() {
   const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
-  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], collegeFees)
+  const pricingPlans = getPricingPlans('college', grade.id)
   const enrollmentFields = selectedPlan
     ? buildCollegeEnrollmentFields(grade.id, selectedPlan.id)
     : []
@@ -427,7 +434,7 @@ function CollegeCurriculum() {
               <div className="college-hours-row" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
+                <span>{formatEuro(getCurriculumPricing('college', item.id).pricing.monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -475,35 +482,26 @@ function CollegeCurriculum() {
         subtitle="Cursus Collège"
         fields={enrollmentFields}
         summary={(options) => {
-          const optionPrice = options.lv3 && options.lv3 !== 'none'
-            ? lv3SurchargeByPlan[selectedPlan.id]
-            : 0
+          const optionPrice = grade.id === '6e'
+            ? options.arabicLanguage === 'arabic'
+              ? getOptionPrice('college', 'arabicLanguage', selectedPlan.id)
+              : 0
+            : options.lv3 && options.lv3 !== 'none'
+              ? getOptionPrice('college', 'lv3', selectedPlan.id)
+              : 0
+          const optionLabel = grade.id === '6e' ? 'langue arabe' : 'LV3'
 
           return {
-            label: `Formule ${selectedPlan.name}${optionPrice ? ' + LV3' : ''}`,
+            label: `Formule ${selectedPlan.name}${optionPrice ? ` + ${optionLabel}` : ''}`,
             value: `${formatEuro(selectedPlan.amount + optionPrice)} ${selectedPlan.period}`
           }
         }}
         onClose={() => setSelectedPlan(null)}
         onSubmit={(options) => {
-          const optionPrice = options.lv3 && options.lv3 !== 'none'
-            ? lv3SurchargeByPlan[selectedPlan.id]
-            : 0
-          const totalPrice = selectedPlan.amount + optionPrice
-
+          // L'identifiant permet au panier de retrouver classe, formule et prix sans duplication.
           addCartItem({
-            productId: `college-${grade.id}-${selectedPlan.id}`,
-            curriculum: 'Collège',
-            gradeId: grade.id,
-            grade: grade.label,
-            planId: selectedPlan.id,
-            plan: selectedPlan.name,
-            basePrice: selectedPlan.amount,
-            optionPrice,
-            price: totalPrice,
-            priceLabel: formatEuro(totalPrice),
-            period: selectedPlan.period,
-            options
+            offerId: getOfferId('college', grade.id, selectedPlan.id),
+            selections: options
           })
         }}
       />

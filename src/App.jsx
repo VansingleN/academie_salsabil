@@ -14,6 +14,7 @@ import PrimairePage from './pages/PrimairePage'
 import CollegePage from './pages/CollegePage'
 import LyceePage from './pages/LyceePage'
 import IefPage from './pages/IefPage'
+import CartPage from './pages/CartPage'
 import './App.css'
 
 function ScrollToLocation() {
@@ -33,6 +34,8 @@ function ScrollToLocation() {
   return null
 }
 
+// La page d'accueil reste composée de sections, contrairement aux pages routées
+// (cursus, contact et panier) qui sont déclarées séparément dans App.
 function HomePage() {
   return (
     <main className="home-page">
@@ -52,6 +55,7 @@ function App() {
       <ScrollToLocation />
       <Navbar />
       <div className="site-oilpaint-background">
+        {/* HashRouter permet de conserver l'historique navigateur sur un hébergement statique. */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/contact" element={<Contact />} />
@@ -60,6 +64,8 @@ function App() {
           <Route path="/college" element={<CollegePage />} />
           <Route path="/lycee" element={<LyceePage />} />
           <Route path="/instruction-en-famille" element={<IefPage />} />
+          {/* Le panier possède sa propre URL afin de pouvoir y revenir avec précédent/suivant. */}
+          <Route path="/panier" element={<CartPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

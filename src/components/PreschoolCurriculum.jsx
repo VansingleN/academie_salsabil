@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import EnrollmentModal from './EnrollmentModal'
 import FormulaGradeSelector from './FormulaGradeSelector'
 import { addCartItem } from '../utils/cart'
-import { buildPricingPlans, formatEuro } from '../utils/pricing'
+import { formatEuro } from '../utils/pricing'
+import { getCurriculumPricing, getOfferId, getPricingPlans } from '../data/offerCatalog'
 import './PreschoolCurriculum.css'
 
+// Le contenu pédagogique reste local à la page ; toute la tarification vient du catalogue.
 const grades = [
   {
     id: 'ps',
@@ -129,15 +131,6 @@ const grades = [
   }
 ]
 
-// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
-const pricingByGrade = {
-  ps: { monthly: 289, quarterly: 915, annual: 2600 },
-  ms: { monthly: 309, quarterly: 980, annual: 2780 },
-  gs: { monthly: 329, quarterly: 1040, annual: 2960 }
-}
-
-const preschoolFees = { monthly: 70, quarterly: 45 }
-
 const preschoolEnrollmentFields = [
   {
     name: 'timeSlot',
@@ -156,7 +149,8 @@ function PreschoolCurriculum() {
   const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
-  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], preschoolFees)
+  // Les cartes se recalculent dès que l'utilisateur change de section.
+  const pricingPlans = getPricingPlans('preschool', grade.id)
 
   return (
     <div className="preschool-curriculum">
@@ -288,7 +282,7 @@ function PreschoolCurriculum() {
               <div className="preschool-hours-row" key={item.id}>
                 <strong>{item.shortLabel}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
+                <span>{formatEuro(getCurriculumPricing('preschool', item.id).pricing.monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -341,17 +335,10 @@ function PreschoolCurriculum() {
         }}
         onClose={() => setSelectedPlan(null)}
         onSubmit={(options) => {
+          // Le panier reçoit uniquement l'identifiant stable de l'offre et le créneau choisi.
           addCartItem({
-            productId: `preschool-${grade.id}-${selectedPlan.id}`,
-            curriculum: 'Maternelle',
-            gradeId: grade.id,
-            grade: grade.shortLabel,
-            planId: selectedPlan.id,
-            plan: selectedPlan.name,
-            price: selectedPlan.amount,
-            priceLabel: selectedPlan.price,
-            period: selectedPlan.period,
-            options
+            offerId: getOfferId('preschool', grade.id, selectedPlan.id),
+            selections: options
           })
         }}
       />

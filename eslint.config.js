@@ -7,7 +7,20 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
-    files: ['**/*.{js,jsx}'],
+    // Les fichiers de configuration et le moteur de devis s'exécutent sous Node.js.
+    files: [
+      'vite.config.js',
+      'vite.*-plugin.js',
+      'src/server/**/*.js',
+      'netlify/functions/**/*.mjs',
+      'scripts/**/*.mjs'
+    ],
+    languageOptions: {
+      globals: globals.node
+    }
+  },
+  {
+    files: ['**/*.{js,jsx,mjs}'],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,

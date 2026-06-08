@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Les futures clés Stripe et variables Netlify ne doivent jamais être versionnées.
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

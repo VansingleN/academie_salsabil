@@ -118,6 +118,38 @@
   width: 100%;
 }
 
+/* Accès compact au panier ; le badge est dimensionné pour rester stable de 0 à 99+. */
+.navbar-cart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 0 6px 0 15px;
+  border: 1px solid rgba(13, 90, 55, 0.22);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.44);
+  color: var(--green-primary);
+  font: 700 14px/1 var(--sans);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.navbar-cart-button:hover {
+  border-color: var(--gold);
+  background: rgba(201, 152, 63, 0.08);
+}
+
+.navbar-cart-button strong {
+  display: grid;
+  min-width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green-primary);
+  color: #fff;
+  font-size: 12px;
+}
+
 .navbar-curricula {
   position: relative;
 }
@@ -309,5 +341,10 @@
 
   .navbar-phone {
     font-size: 14px;
+  }
+
+  .navbar-cart-button {
+    /* Dans la navigation mobile empilée, le bouton reste centré comme les autres liens. */
+    justify-content: center;
   }
 }

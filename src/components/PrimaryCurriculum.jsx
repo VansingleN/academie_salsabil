@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import EnrollmentModal from './EnrollmentModal'
 import FormulaGradeSelector from './FormulaGradeSelector'
 import { addCartItem } from '../utils/cart'
-import { buildPricingPlans, formatEuro } from '../utils/pricing'
+import { formatEuro } from '../utils/pricing'
+import {
+  getCurriculumPricing,
+  getOfferId,
+  getOptionPrice,
+  getPricingPlans
+} from '../data/offerCatalog'
 import './PrimaryCurriculum.css'
 
+// Le contenu des programmes reste ici ; les prix et suppléments sont centralisés.
 const grades = [
   {
     id: 'cp',
@@ -191,19 +198,12 @@ const grades = [
   }
 ]
 
-// Modifiez uniquement ces montants pour ajuster les formules de chaque classe.
-const pricingByGrade = {
-  cp: { monthly: 329, quarterly: 1040, annual: 2960 },
-  ce1: { monthly: 339, quarterly: 1075, annual: 3050 },
-  ce2: { monthly: 349, quarterly: 1100, annual: 3140 },
-  cm1: { monthly: 369, quarterly: 1165, annual: 3320 },
-  cm2: { monthly: 389, quarterly: 1230, annual: 3500 }
-}
+function buildPrimaryEnrollmentFields(planId) {
+  // Le supplément arabe dépend du rythme de paiement sélectionné.
+  const surcharge = getOptionPrice('primary', 'arabicLanguage', planId)
 
-const primaryFees = { monthly: 90, quarterly: 60 }
-
-const primaryEnrollmentFields = [
-  {
+  return [
+    {
     name: 'timeSlot',
     label: 'Tranche horaire',
     placeholder: 'Choisir une tranche horaire',
@@ -212,15 +212,29 @@ const primaryEnrollmentFields = [
       { value: 'morning', label: 'Matin' },
       { value: 'afternoon', label: 'Après-midi' }
     ]
-  }
-]
+    },
+    {
+      name: 'arabicLanguage',
+      label: 'Langue arabe (option payante)',
+      placeholder: 'Choisir une option',
+      defaultValue: 'none',
+      options: [
+        { value: 'none', label: 'Sans langue arabe' },
+        { value: 'arabic', label: `Ajouter la langue arabe (+ ${formatEuro(surcharge)})` }
+      ]
+    }
+  ]
+}
 
 function PrimaryCurriculum() {
   const [activeGrade, setActiveGrade] = useState(grades[0].id)
   const [selectedPlan, setSelectedPlan] = useState(null)
   const navigate = useNavigate()
   const grade = grades.find((item) => item.id === activeGrade) ?? grades[0]
-  const pricingPlans = buildPricingPlans(pricingByGrade[grade.id], primaryFees)
+  const pricingPlans = getPricingPlans('primary', grade.id)
+  const enrollmentFields = selectedPlan
+    ? buildPrimaryEnrollmentFields(selectedPlan.id)
+    : []
 
   return (
     <div className="primary-curriculum">
@@ -351,7 +365,7 @@ function PrimaryCurriculum() {
               <div className="primary-hours-row" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.weeklyHours}</span>
-                <span>{formatEuro(pricingByGrade[item.id].monthly)} / mois</span>
+                <span>{formatEuro(getCurriculumPricing('primary', item.id).pricing.monthly)} / mois</span>
               </div>
             ))}
           </div>
@@ -397,24 +411,23 @@ function PrimaryCurriculum() {
         isOpen={Boolean(selectedPlan)}
         title={`Inscription ${grade.label}`}
         subtitle="Cursus Primaire"
-        fields={primaryEnrollmentFields}
-        summary={{
-          label: `Formule ${selectedPlan?.name ?? ''}`,
-          value: selectedPlan ? `${selectedPlan.price} ${selectedPlan.period}` : ''
+        fields={enrollmentFields}
+        summary={(options) => {
+          const optionPrice = options.arabicLanguage === 'arabic'
+            ? getOptionPrice('primary', 'arabicLanguage', selectedPlan.id)
+            : 0
+
+          return {
+            label: `Formule ${selectedPlan.name}${optionPrice ? ' + langue arabe' : ''}`,
+            value: `${formatEuro(selectedPlan.amount + optionPrice)} ${selectedPlan.period}`
+          }
         }}
         onClose={() => setSelectedPlan(null)}
         onSubmit={(options) => {
+          // Le total n'est pas stocké : il sera recalculé par le catalogue dans le panier.
           addCartItem({
-            productId: `primary-${grade.id}-${selectedPlan.id}`,
-            curriculum: 'Primaire',
-            gradeId: grade.id,
-            grade: grade.label,
-            planId: selectedPlan.id,
-            plan: selectedPlan.name,
-            price: selectedPlan.amount,
-            priceLabel: selectedPlan.price,
-            period: selectedPlan.period,
-            options
+            offerId: getOfferId('primary', grade.id, selectedPlan.id),
+            selections: options
           })
         }}
       />

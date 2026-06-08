@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Logo from './Logo'
 import './Navbar.css'
 import { IconWhatsApp } from './ContactIcons'
+import { CART_UPDATED_EVENT, getCart } from '../utils/cart'
 
 const academicLevels = [
   { name: 'Lycée', path: '/lycee' },
@@ -18,7 +19,20 @@ const merkezSubjects = [
 
 function Navbar() {
   const [isCurriculaOpen, setIsCurriculaOpen] = useState(false)
+  const [cartCount, setCartCount] = useState(() => getCart().length)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Le compteur suit les changements du panier sans imposer un état global React.
+    const refreshCartCount = () => setCartCount(getCart().length)
+    window.addEventListener(CART_UPDATED_EVENT, refreshCartCount)
+    window.addEventListener('storage', refreshCartCount)
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, refreshCartCount)
+      window.removeEventListener('storage', refreshCartCount)
+    }
+  }, [])
 
   const handleContactClick = () => {
     setIsCurriculaOpen(false)
@@ -121,6 +135,22 @@ function Navbar() {
           {/* Contact - Bouton cliquable pour aller à la page contact */}
           <li>
             <button className="nav-link-button" onClick={handleContactClick}>Contact</button>
+          </li>
+
+          <li>
+            {/* Le libellé accessible annonce aussi le nombre d'inscriptions. */}
+            <button
+              className="navbar-cart-button"
+              type="button"
+              aria-label={`Ouvrir le panier, ${cartCount} inscription${cartCount > 1 ? 's' : ''}`}
+              onClick={() => {
+                setIsCurriculaOpen(false)
+                navigate('/panier')
+              }}
+            >
+              <span>Panier</span>
+              <strong>{cartCount}</strong>
+            </button>
           </li>
         </ul>
       </div>

@@ -10,6 +10,7 @@ import {
   getOptionPrice,
   getPricingPlans
 } from '../data/offerCatalog'
+import { withBillingCountryField } from '../data/countries'
 import './CollegeCurriculum.css'
 
 // Le programme détaillé reste propre au composant ; les données commerciales sont partagées.
@@ -245,7 +246,7 @@ function buildCollegeEnrollmentFields(gradeId, planId) {
   if (gradeId === '6e') {
     const surcharge = getOptionPrice('college', 'arabicLanguage', planId)
 
-    return [
+    return withBillingCountryField([
       collegeTimeSlotField,
       {
         name: 'arabicLanguage',
@@ -257,12 +258,12 @@ function buildCollegeEnrollmentFields(gradeId, planId) {
           { value: 'arabic', label: `Ajouter la langue arabe (+ ${formatEuro(surcharge)})` }
         ]
       }
-    ]
+    ])
   }
 
   const surcharge = getOptionPrice('college', 'lv3', planId)
 
-  return [
+  return withBillingCountryField([
     collegeTimeSlotField,
     {
       name: 'lv2',
@@ -293,7 +294,7 @@ function buildCollegeEnrollmentFields(gradeId, planId) {
         }
       ]
     }
-  ]
+  ])
 }
 
 function CollegeCurriculum() {
@@ -382,7 +383,7 @@ function CollegeCurriculum() {
         <div className="college-formulas-grid">
           {pricingPlans.map((plan) => (
             <article
-              className={`college-formula-card${plan.featured ? ' college-formula-card--featured' : ''}`}
+              className={`college-formula-card${plan.featured ? ' college-formula-card--featured' : ''}${!plan.available ? ' formula-card--unavailable' : ''}`}
               key={plan.name}
             >
               {plan.badge && <span className="college-formula-badge">{plan.badge}</span>}
@@ -398,8 +399,13 @@ function CollegeCurriculum() {
                   <li key={detail}>{detail}</li>
                 ))}
               </ul>
-              <button type="button" onClick={() => setSelectedPlan(plan)}>
-                Choisir cette formule
+              {!plan.available && <span className="formula-card-status">{plan.unavailableReason}</span>}
+              <button
+                type="button"
+                disabled={!plan.available}
+                onClick={() => setSelectedPlan(plan)}
+              >
+                {plan.available ? 'Choisir cette formule' : 'Inscriptions closes'}
               </button>
             </article>
           ))}
@@ -407,8 +413,8 @@ function CollegeCurriculum() {
 
         <p className="college-formulas-note">
           Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
-          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
-          prix total de la formule.
+          précisée avant l’ajout au panier. Le premier paiement et les frais de
+          dossier sont encaissés à l’inscription.
         </p>
       </section>
 
@@ -480,6 +486,9 @@ function CollegeCurriculum() {
         isOpen={Boolean(selectedPlan)}
         title={`Inscription ${grade.label}`}
         subtitle="Cursus Collège"
+        offerId={selectedPlan
+          ? getOfferId('college', grade.id, selectedPlan.id)
+          : null}
         fields={enrollmentFields}
         summary={(options) => {
           const optionPrice = grade.id === '6e'

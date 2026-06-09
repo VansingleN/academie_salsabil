@@ -16,8 +16,13 @@ La plateforme comprend actuellement :
 - Stripe Checkout hébergé en mode test ;
 - un stockage temporaire des commandes avec Netlify Blobs ;
 - un webhook Stripe signé et idempotent ;
+- un Checkout limité au premier paiement calculé par le serveur ;
+- des calendriers Stripe mensuels et trimestriels créés après le webhook ;
 - une vérification serveur de la page de succès ;
-- un portail client Stripe préparé, mais désactivé par défaut.
+- un portail client Stripe préparé, mais désactivé par défaut ;
+- un calendrier scolaire configurable et un moteur d'échéancier ;
+- la gestion des inscriptions tardives et du prorata trimestriel ;
+- un pays de facturation obligatoire avant l'ajout au panier.
 
 ## Changelog du prochain déploiement
 
@@ -36,8 +41,7 @@ La plateforme comprend actuellement :
 - Remplacement des montants enregistrés dans le navigateur par des identifiants
   d'offres.
 - Recalcul systématique des tarifs et suppléments depuis le catalogue.
-- Préparation des paiements uniques, abonnements, échéances, acomptes et frais
-  de dossier.
+- Préparation des paiements uniques, échéances scolaires et frais de dossier.
 - Ajout de l'option payante de langue arabe du CP au CM2 et en 6e.
 
 ### Sécurité du paiement
@@ -54,6 +58,16 @@ La plateforme comprend actuellement :
 - Détection et neutralisation des événements Stripe déjà traités.
 - Confirmation des commandes exclusivement depuis l'état écrit par le webhook.
 - Préparation du portail client derrière une activation serveur explicite.
+- Encaissement dans Checkout du seul premier paiement validé par le serveur.
+- Enregistrement consenti de la carte pour les prélèvements hors session.
+- Création idempotente des calendriers Stripe mensuels et trimestriels après
+  confirmation du webhook.
+- Arrêt automatique après la dernière échéance et absence de calendrier futur
+  pour la formule annuelle.
+- Génération des dix échéances mensuelles et des trois échéances trimestrielles.
+- Facturation des frais de dossier avec le premier paiement.
+- Fermeture automatique de l'offre annuelle après la veille de la rentrée.
+- Préparation d'une fiscalité configurable, actuellement désactivée.
 
 ### Déploiement
 
@@ -75,10 +89,14 @@ npm run lint
 npm run build
 npm run test:quote
 npm run test:checkout
+npm run test:stripe-schedule
 npm run test:webhook
 npm run test:session
+npm run test:schedule
 ```
 
 Le détail historique des changements reste disponible dans
 [CHANGELOG.md](./CHANGELOG.md). L'architecture du paiement est décrite dans
 [docs/payment-architecture.md](./docs/payment-architecture.md).
+Les règles commerciales validées sont consignées dans
+[docs/school-billing-rules.md](./docs/school-billing-rules.md).

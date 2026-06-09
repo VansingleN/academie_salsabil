@@ -123,3 +123,26 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* L'offre annuelle reste visible après la rentrée afin d'expliquer le choix,
+   mais elle ne peut plus être ajoutée au panier. */
+.formula-card--unavailable {
+  filter: grayscale(0.32);
+  opacity: 0.58;
+}
+
+.formula-card--unavailable:hover {
+  transform: none !important;
+}
+
+.formula-card--unavailable button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.formula-card-status {
+  display: block;
+  margin: 12px 0 0;
+  color: #7d5149;
+  font: 700 11px/1.45 var(--sans);
+}

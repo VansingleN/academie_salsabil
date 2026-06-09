@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import { createHmac } from 'node:crypto'
 import {
-  createMemoryOrderRepository
+  createMemoryOrderRepository,
+  createNetlifyBlobsOrderRepository
 } from '../src/server/orderRepository.js'
 import {
   processStripeEvent,
@@ -11,6 +12,30 @@ import {
 
 const webhookSecret = 'whsec_local_test'
 const timestamp = 1_800_000_000
+
+// Le stockage Netlify doit contourner le cache distribué pour les commandes
+// et les reçus d'événements qui viennent d'être écrits par une autre Function.
+const blobReads = []
+const blobsRepository = createNetlifyBlobsOrderRepository({
+  store: {
+    async get(key, options) {
+      blobReads.push({ key, options })
+      return null
+    },
+    async setJSON() {}
+  }
+})
+await blobsRepository.getOrder('ord_consistency')
+await blobsRepository.getProcessedEvent('evt_consistency')
+assert.equal(blobReads.length, 2)
+assert.deepEqual(blobReads[0].options, {
+  type: 'json',
+  consistency: 'strong'
+})
+assert.deepEqual(blobReads[1].options, {
+  type: 'json',
+  consistency: 'strong'
+})
 
 function sign(rawBody, signedAt = timestamp) {
   const signature = createHmac('sha256', webhookSecret)
@@ -62,6 +87,11 @@ await repository.saveOrder({
   status: 'checkout_created',
   paymentStatus: 'unpaid',
   checkoutSessionId: 'cs_test_subscription',
+  items: [{
+    paymentSchedule: {
+      futurePayments: [{ dueDate: '2026-10-07' }]
+    }
+  }],
   createdAt: '2026-06-08T10:00:00.000Z',
   updatedAt: '2026-06-08T10:00:00.000Z'
 })
@@ -71,10 +101,10 @@ const completedEvent = createEvent(
   'checkout.session.completed',
   {
     id: 'cs_test_subscription',
-    mode: 'subscription',
+    mode: 'payment',
     payment_status: 'paid',
     customer: 'cus_test',
-    subscription: 'sub_test',
+    payment_intent: 'pi_test',
     customer_details: { email: 'parent@example.com' },
     metadata: { order_id: 'ord_subscription' }
   }
@@ -82,12 +112,24 @@ const completedEvent = createEvent(
 const completedResult = await processStripeEvent({
   event: completedEvent,
   orderRepository: repository,
+  scheduleProvisioner: async ({ order, orderRepository }) => {
+    const scheduledOrder = {
+      ...order,
+      status: 'scheduled',
+      scheduleStatus: 'scheduled',
+      subscriptionScheduleId: 'sub_sched_test',
+      subscriptionId: 'sub_test'
+    }
+    await orderRepository.saveOrder(scheduledOrder)
+    return scheduledOrder
+  },
   now: () => '2026-06-08T10:01:00.000Z'
 })
 const activeOrder = await repository.getOrder('ord_subscription')
 
 assert.equal(completedResult.duplicate, false)
-assert.equal(activeOrder.status, 'active')
+assert.equal(activeOrder.status, 'scheduled')
+assert.equal(activeOrder.subscriptionScheduleId, 'sub_sched_test')
 assert.equal(activeOrder.subscriptionId, 'sub_test')
 assert.equal(
   (await repository.findOrderBySubscription('sub_test')).id,
@@ -96,7 +138,10 @@ assert.equal(
 
 const duplicateResult = await processStripeEvent({
   event: completedEvent,
-  orderRepository: repository
+  orderRepository: repository,
+  scheduleProvisioner: async () => {
+    throw new Error('Le provisionnement ne doit pas être rejoué.')
+  }
 })
 assert.equal(duplicateResult.duplicate, true)
 
@@ -176,5 +221,51 @@ await assert.rejects(
   (error) => error.code === 'WEBHOOK_ORDER_NOT_READY'
 )
 assert.equal(await repository.getProcessedEvent('evt_missing_order'), null)
+
+const retryRepository = createMemoryOrderRepository()
+await retryRepository.saveOrder({
+  id: 'ord_schedule_retry',
+  status: 'checkout_created',
+  paymentStatus: 'unpaid',
+  checkoutSessionId: 'cs_test_schedule_retry',
+  items: [{
+    paymentSchedule: {
+      futurePayments: [{ dueDate: '2026-10-07' }]
+    }
+  }]
+})
+const retryEvent = createEvent(
+  'evt_schedule_retry',
+  'checkout.session.completed',
+  {
+    id: 'cs_test_schedule_retry',
+    mode: 'payment',
+    payment_status: 'paid',
+    customer: 'cus_retry',
+    payment_intent: 'pi_retry',
+    metadata: { order_id: 'ord_schedule_retry' }
+  }
+)
+
+await assert.rejects(
+  processStripeEvent({
+    event: retryEvent,
+    orderRepository: retryRepository,
+    scheduleProvisioner: async () => {
+      const error = new Error('Stripe temporairement indisponible')
+      error.code = 'TEMPORARY_SCHEDULE_ERROR'
+      throw error
+    }
+  }),
+  (error) => error.code === 'TEMPORARY_SCHEDULE_ERROR'
+)
+assert.equal(
+  await retryRepository.getProcessedEvent('evt_schedule_retry'),
+  null
+)
+assert.equal(
+  (await retryRepository.getOrder('ord_schedule_retry')).status,
+  'initial_payment_paid'
+)
 
 console.log('Webhook Stripe : tests réussis')

@@ -17,14 +17,14 @@ import {
   resolveCartItem,
   validateOfferSelections
 } from '../data/offerCatalog'
-import { formatEuro } from '../utils/pricing'
+import { formatDate, formatEuro } from '../utils/pricing'
 import { requestCartQuote } from '../utils/cartQuoteApi'
 import { requestCheckoutSession } from '../utils/checkoutApi'
 import './CartPage.css'
 
 // Un éditeur correspond à une inscription. Il garde un état local pour rendre
 // les sélecteurs réactifs, puis répercute chaque changement dans localStorage.
-function CartItemEditor({ item, onChange, onRemove }) {
+function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
   const offer = getOffer(item.offerId)
   const fields = getOfferFields(offer)
   const gradeChoices = getGradeChoices(offer?.curriculumId)
@@ -81,7 +81,13 @@ function CartItemEditor({ item, onChange, onRemove }) {
             onChange={(event) => handleOfferChange(event.target.value, offer.planId)}
           >
             {gradeChoices.map((choice) => (
-              <option key={choice.value} value={choice.value}>{choice.label}</option>
+              <option
+                key={choice.value}
+                value={choice.value}
+                disabled={choice.disabled}
+              >
+                {choice.label}
+              </option>
             ))}
           </select>
         </label>
@@ -139,6 +145,52 @@ function CartItemEditor({ item, onChange, onRemove }) {
         )}
         <span>{resolvedItem.period}</span>
       </div>
+
+      {quotedItem?.paymentSchedule && (
+        <section className="cart-item-schedule">
+          <header>
+            <div>
+              <span>Premier paiement</span>
+              <strong>
+                {formatEuro(
+                  quotedItem.paymentSchedule.totals.firstPaymentExcludingTax
+                )} HT
+              </strong>
+            </div>
+            <small>
+              Encaissé à l’inscription · couvre du{' '}
+              {formatDate(quotedItem.paymentSchedule.firstPayment.periodStart)} au{' '}
+              {formatDate(quotedItem.paymentSchedule.firstPayment.periodEnd)}
+            </small>
+          </header>
+
+          {quotedItem.paymentSchedule.firstPayment.proration?.applied && (
+            <p>
+              Prorata de{' '}
+              {quotedItem.paymentSchedule.firstPayment.proration.coveredDays} jours
+              sur {quotedItem.paymentSchedule.firstPayment.proration.totalDays}.
+            </p>
+          )}
+
+          {quotedItem.paymentSchedule.futurePayments.length > 0 && (
+            <details>
+              <summary>
+                {quotedItem.paymentSchedule.futurePayments.length} échéance
+                {quotedItem.paymentSchedule.futurePayments.length > 1 ? 's' : ''} future
+                {quotedItem.paymentSchedule.futurePayments.length > 1 ? 's' : ''}
+              </summary>
+              <ul>
+                {quotedItem.paymentSchedule.futurePayments.map((installment) => (
+                  <li key={`${installment.periodId}-${installment.dueDate}`}>
+                    <span>{formatDate(installment.dueDate)} · {installment.periodLabel}</span>
+                    <strong>{formatEuro(installment.subtotalExcludingTax)} HT</strong>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </section>
+      )}
 
       {!isValid && <p className="cart-item-error">Veuillez compléter les choix de cette inscription.</p>}
 
@@ -286,8 +338,8 @@ function CartPage() {
           <h1>Votre projet d’inscription</h1>
         </div>
         <p>
-          Vérifiez les classes, formules et options. Le paiement sera ajouté lors de
-          la prochaine étape technique.
+          Vérifiez les classes, formules, options et échéances avant d’accéder au
+          paiement sécurisé.
         </p>
       </header>
 
@@ -297,6 +349,11 @@ function CartPage() {
             <CartItemEditor
               key={item.cartItemId}
               item={item}
+              quotedItem={quoteMatchesCart
+                ? serverQuote.items.find(
+                    (quotedItem) => quotedItem.cartItemId === item.cartItemId
+                  )
+                : null}
               onChange={handleChange}
               onRemove={handleRemove}
             />
@@ -308,14 +365,33 @@ function CartPage() {
           <h2>{cart.length} inscription{cart.length > 1 ? 's' : ''}</h2>
 
           <div className="cart-summary-totals" aria-busy={displayedQuoteStatus === 'loading'}>
-            {displayedTotals.monthly && (
-              <p><span>Total mensuel</span><strong>{formatEuro(displayedTotals.monthly)} HT</strong></p>
-            )}
-            {displayedTotals.quarterly && (
-              <p><span>Total trimestriel</span><strong>{formatEuro(displayedTotals.quarterly)} HT</strong></p>
-            )}
-            {displayedTotals.annual && (
-              <p><span>Total annuel</span><strong>{formatEuro(displayedTotals.annual)} HT</strong></p>
+            {quoteMatchesCart ? (
+              <>
+                <p>
+                  <span>Premier paiement</span>
+                  <strong>{formatEuro(serverQuote.paymentSummary.firstPaymentExcludingTax)} HT</strong>
+                </p>
+                <p>
+                  <span>Échéances futures</span>
+                  <strong>{formatEuro(serverQuote.paymentSummary.futurePaymentsExcludingTax)} HT</strong>
+                </p>
+                <p className="cart-summary-contract-total">
+                  <span>Total contractuel</span>
+                  <strong>{formatEuro(serverQuote.paymentSummary.contractTotalExcludingTax)} HT</strong>
+                </p>
+              </>
+            ) : (
+              <>
+                {displayedTotals.monthly && (
+                  <p><span>Tarif mensuel</span><strong>{formatEuro(displayedTotals.monthly)} HT</strong></p>
+                )}
+                {displayedTotals.quarterly && (
+                  <p><span>Tarif trimestriel</span><strong>{formatEuro(displayedTotals.quarterly)} HT</strong></p>
+                )}
+                {displayedTotals.annual && (
+                  <p><span>Tarif annuel</span><strong>{formatEuro(displayedTotals.annual)} HT</strong></p>
+                )}
+              </>
             )}
           </div>
 
@@ -343,8 +419,10 @@ function CartPage() {
           <div className="cart-summary-note">
             <strong>Checkout en mode test</strong>
             <p>
-              Aucune carte ne sera débitée. Les durées d’abonnement, acomptes, frais
-              de dossier et taxes restent à valider avant la production.
+              Aucune carte réelle ne sera débitée. Checkout encaisse le premier
+              paiement test ; les échéances futures sont créées seulement après
+              confirmation du webhook. Les taxes restent désactivées tant que
+              l’entité juridique n’est pas configurée.
             </p>
           </div>
 

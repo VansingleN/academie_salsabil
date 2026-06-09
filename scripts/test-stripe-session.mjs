@@ -20,7 +20,8 @@ const order = {
   id: 'ord_verify',
   status: 'checkout_created',
   paymentStatus: 'unpaid',
-  checkoutSessionId: 'cs_test_verify'
+  checkoutSessionId: 'cs_test_verify',
+  subscriptionScheduleId: 'sub_sched_verify'
 }
 await repository.saveOrder(order)
 
@@ -28,7 +29,7 @@ const checkoutSession = {
   id: 'cs_test_verify',
   status: 'complete',
   payment_status: 'paid',
-  mode: 'subscription',
+  mode: 'payment',
   customer: 'cus_verify',
   metadata: {
     source: 'academie_salsabil_guest_cart',

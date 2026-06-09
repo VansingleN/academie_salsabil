@@ -26,6 +26,18 @@ La Netlify Function :
 5. calcule les suppléments et les totaux ;
 6. renvoie un devis non mis en cache.
 
+Le devis génère désormais également un échéancier scolaire complet. Il sépare :
+
+- le premier paiement encaissé à l'inscription ;
+- les échéances futures et leurs dates ;
+- les périodes pédagogiques couvertes ;
+- les frais de dossier facturés uniquement au premier paiement ;
+- le prorata journalier des inscriptions trimestrielles tardives ;
+- la structure fiscale encore désactivée.
+
+Le calendrier est configuré dans `src/data/schoolCalendar.js` et les règles
+commerciales sont détaillées dans `docs/school-billing-rules.md`.
+
 ## Fichiers importants
 
 - `src/data/offerCatalog.js` : catalogue commercial partagé ;
@@ -34,12 +46,18 @@ La Netlify Function :
 - `vite.cart-quote-plugin.js` : équivalent local pour le développement ;
 - `src/utils/cartQuoteApi.js` : appel du front vers le serveur ;
 - `scripts/test-cart-quote.mjs` : tests de sécurité essentiels.
+- `src/data/schoolCalendar.js` : calendrier configurable de l'année scolaire ;
+- `src/data/taxPolicy.js` : activation future du calcul fiscal ;
+- `src/server/paymentSchedule.js` : génération des échéances et proratas ;
+- `scripts/test-payment-schedule.mjs` : tests du calendrier scolaire.
 - `src/server/orderRepository.js` : interface du stockage des commandes ;
 - `src/server/stripeWebhook.js` : signature et traitement idempotent ;
+- `src/server/stripeSubscriptionSchedule.js` : création des échéances Stripe futures ;
 - `src/server/stripeSession.js` : vérification des sessions et portail client ;
 - `netlify/functions/stripe-webhook.mjs` : endpoint webhook public ;
 - `netlify/functions/verify-checkout-session.mjs` : contrôle de la page succès ;
 - `netlify/functions/create-customer-portal.mjs` : création sécurisée du portail.
+- `scripts/test-stripe-subscription-schedule.mjs` : tests des calendriers Stripe.
 
 ## Stripe Checkout en mode test
 
@@ -56,15 +74,40 @@ La route `/api/create-checkout-session` :
 1. relance intégralement `createCartQuote` ;
 2. refuse une clé Stripe de production ;
 3. refuse temporairement les paniers mélangeant plusieurs formules ;
-4. convertit les euros validés en centimes ;
-5. crée un paiement unique pour la formule annuelle ;
-6. crée un abonnement pour les formules mensuelle et trimestrielle ;
-7. crée une commande `checkout_created` dans le dépôt serveur ;
-8. renvoie uniquement l'URL de la page Checkout hébergée par Stripe.
+4. vérifie que toutes les inscriptions utilisent le même pays de facturation ;
+5. convertit en centimes uniquement le premier paiement calculé par le serveur,
+   frais de dossier et options compris ;
+6. crée toujours une session Checkout en mode paiement unique ;
+7. demande le consentement pour enregistrer la carte et la réutiliser hors
+   session pour les échéances scolaires futures ;
+8. force Stripe Tax à rester désactivé ;
+9. crée une commande `checkout_created` dans le dépôt serveur ;
+10. renvoie uniquement l'URL de la page Checkout hébergée par Stripe.
 
-Les abonnements créés pendant cette étape sont uniquement des abonnements de
-test. Leur nombre définitif d'échéances et leur arrêt automatique seront ajoutés
-après validation des règles commerciales.
+Les prix transmis à Checkout sont donc exclusivement ceux du premier paiement
+de chaque inscription. Le navigateur ne fournit ni montant ni date.
+
+## Création des échéances Stripe futures
+
+Après `checkout.session.completed`, le webhook confirme d'abord le paiement
+initial. Pour une formule mensuelle ou trimestrielle, il crée ensuite un
+`Subscription Schedule` à partir des dates exactes du moteur scolaire :
+
+1. il récupère le moyen de paiement enregistré sur le Payment Intent ;
+2. il crée les Prices récurrents nécessaires avec des clés d'idempotence stables ;
+3. il démarre le calendrier à la date de la première échéance future ;
+4. il utilise un intervalle mensuel ou trimestriel selon la formule ;
+5. il arrête automatiquement l'abonnement après la dernière échéance ;
+6. il conserve Stripe Tax désactivé.
+
+Une formule annuelle ne crée aucun abonnement ni calendrier futur.
+
+La commande passe successivement par les états
+`awaiting_initial_payment`, `initial_payment_paid`,
+`schedule_provisioning`, puis `scheduled`. Une erreur de création produit
+`schedule_failed`. L'événement webhook n'est alors pas marqué comme traité :
+Stripe peut le renvoyer et les clés d'idempotence empêchent la création de
+doublons.
 
 ## Stockage temporaire des commandes
 
@@ -80,6 +123,11 @@ commande sans parcourir tout le stockage. Cette couche est temporaire et
 modulable : avant une vraie mise en production commerciale, elle pourra être
 remplacée par une base transactionnelle en conservant la même interface.
 
+Toutes les lectures de commandes, d'index et de reçus webhook utilisent la
+cohérence forte de Netlify Blobs. Le webhook ne dépend donc pas du cache
+distribué après une écriture récente effectuée par Checkout ou par une autre
+Function.
+
 ## Webhook sécurisé et idempotent
 
 La route `/api/stripe-webhook` :
@@ -91,7 +139,9 @@ La route `/api/stripe-webhook` :
 5. applique des transitions répétables sur la commande ;
 6. traite `checkout.session.completed`, `checkout.session.expired`,
    `invoice.paid`, `invoice.payment_failed` et
-   `customer.subscription.deleted`.
+   `customer.subscription.deleted` ;
+7. ne mémorise l'événement de paiement initial qu'après la création réussie du
+   calendrier Stripe futur, lorsqu'il est requis.
 
 Un événement déjà reçu renvoie une réponse positive avec `duplicate: true`,
 sans rejouer son traitement.
@@ -103,7 +153,8 @@ La page transmet son `session_id` à `/api/verify-checkout-session`. Le serveur 
 1. récupère directement la session auprès de Stripe ;
 2. vérifie ses métadonnées et son appartenance à une commande enregistrée ;
 3. consulte l'état persistant alimenté par le webhook ;
-4. répond `confirmed: true` uniquement pour une commande `paid` ou `active`.
+4. répond `confirmed: true` uniquement pour une commande `paid`, `active` ou
+   `scheduled`.
 
 Même si l'API Stripe renvoie `payment_status: paid`, la commande reste affichée
 « en attente » tant que le webhook n'a pas enregistré sa confirmation.
@@ -147,8 +198,33 @@ vraies clés restent ignorés par Git.
 ```bash
 npm run test:quote
 npm run test:checkout
+npm run test:stripe-schedule
 npm run test:webhook
 npm run test:session
+npm run test:schedule
 npm run lint
 npm run build
 ```
+
+## Recette Stripe locale validée
+
+La recette complète a été exécutée le 9 juin 2026 dans la sandbox Stripe
+« Académie Salsabil », avec Stripe Tax désactivé :
+
+- formule mensuelle CP avec arabe : premier paiement de 434 EUR, puis neuf
+  échéances de 344 EUR du 7 octobre 2026 au 7 juin 2027 ;
+- formule trimestrielle CP : premier paiement de 1 100 EUR, puis deux échéances
+  de 1 040 EUR les 7 décembre 2026 et 7 mars 2027 ;
+- formule annuelle CP : paiement unique de 2 960 EUR et aucun
+  `Subscription Schedule`.
+
+Les commandes mensuelle et trimestrielle ont atteint l'état `scheduled`. La
+commande annuelle a atteint l'état `paid`. Les calendriers utilisent
+`charge_automatically`, possèdent un moyen de paiement par défaut et se
+terminent avec `end_behavior=cancel`.
+
+Le rejeu signé du même événement `checkout.session.completed` a renvoyé
+`duplicate: true` sans créer de second Price ni de second calendrier.
+
+Les montants restent des placeholders commerciaux. Cette recette valide le
+flux technique et devra être rejouée après remplacement du catalogue tarifaire.

@@ -7,8 +7,9 @@ import {
 
 class StripeCheckoutError extends StripeApiError {}
 
-function getCheckoutMode(items) {
+function validateCheckoutItems(items) {
   const planIds = new Set(items.map((item) => item.planId))
+  const countryCodes = new Set(items.map((item) => item.billingCountry))
 
   // Cette première version traite un seul rythme à la fois. Cela évite de créer
   // des abonnements mixtes avant d'avoir fixé les règles contractuelles.
@@ -20,7 +21,13 @@ function getCheckoutMode(items) {
     )
   }
 
-  return items[0].billingMode === 'subscription' ? 'subscription' : 'payment'
+  if (countryCodes.size !== 1) {
+    throw new StripeCheckoutError(
+      'Toutes les inscriptions d’un même paiement doivent utiliser le même pays de facturation.',
+      409,
+      'MIXED_BILLING_COUNTRIES'
+    )
+  }
 }
 
 function buildItemDescription(item) {
@@ -31,20 +38,24 @@ function buildItemDescription(item) {
   return options || `Formule ${item.plan}`
 }
 
-function appendLineItems(parameters, items, mode) {
+function appendInitialPaymentLineItems(parameters, items) {
   items.forEach((item, index) => {
     const prefix = `line_items[${index}]`
+    const firstPayment = item.paymentSchedule.firstPayment
 
     parameters.set(`${prefix}[quantity]`, '1')
     parameters.set(`${prefix}[price_data][currency]`, 'eur')
-    parameters.set(`${prefix}[price_data][unit_amount]`, String(item.totalAmount * 100))
+    parameters.set(
+      `${prefix}[price_data][unit_amount]`,
+      String(Math.round(firstPayment.subtotalExcludingTax * 100))
+    )
     parameters.set(
       `${prefix}[price_data][product_data][name]`,
-      `${item.curriculum} · ${item.grade} · ${item.plan}`
+      `${item.curriculum} · ${item.grade} · premier paiement`
     )
     parameters.set(
       `${prefix}[price_data][product_data][description]`,
-      buildItemDescription(item)
+      `${firstPayment.periodLabel} · ${buildItemDescription(item)}`
     )
     parameters.set(
       `${prefix}[price_data][product_data][metadata][offer_id]`,
@@ -54,28 +65,27 @@ function appendLineItems(parameters, items, mode) {
       `${prefix}[price_data][product_data][metadata][cart_item_id]`,
       item.cartItemId
     )
-
-    if (mode === 'subscription') {
-      parameters.set(
-        `${prefix}[price_data][recurring][interval]`,
-        item.interval
-      )
-      parameters.set(
-        `${prefix}[price_data][recurring][interval_count]`,
-        String(item.intervalCount)
-      )
-    }
+    parameters.set(
+      `${prefix}[price_data][product_data][metadata][period_id]`,
+      firstPayment.periodId
+    )
   })
 }
 
 function buildCheckoutParameters(quote, siteUrl, orderId = 'order_preview') {
-  const mode = getCheckoutMode(quote.items)
+  validateCheckoutItems(quote.items)
   const parameters = new URLSearchParams()
 
-  parameters.set('mode', mode)
+  // Le premier paiement est toujours ponctuel. Les prélèvements suivants sont
+  // créés seulement après sa confirmation, depuis le webhook sécurisé.
+  parameters.set('mode', 'payment')
   parameters.set('locale', 'fr')
+  parameters.set('payment_method_types[0]', 'card')
+  parameters.set('automatic_tax[enabled]', 'false')
   parameters.set('billing_address_collection', 'required')
   parameters.set('phone_number_collection[enabled]', 'true')
+  parameters.set('customer_creation', 'always')
+  parameters.set('payment_intent_data[setup_future_usage]', 'off_session')
   parameters.set(
     'success_url',
     `${siteUrl}/#/paiement/succes?session_id={CHECKOUT_SESSION_ID}`
@@ -85,33 +95,24 @@ function buildCheckoutParameters(quote, siteUrl, orderId = 'order_preview') {
   parameters.set('metadata[order_id]', orderId)
   parameters.set('metadata[item_count]', String(quote.itemCount))
   parameters.set('metadata[plan_id]', quote.items[0].planId)
+  parameters.set(
+    'metadata[future_installment_count]',
+    String(quote.items[0].paymentSchedule.futurePayments.length)
+  )
   parameters.set('client_reference_id', orderId)
+  parameters.set('payment_intent_data[metadata][order_id]', orderId)
+  parameters.set(
+    'payment_intent_data[metadata][source]',
+    'academie_salsabil_guest_cart'
+  )
+  parameters.set(
+    'custom_text[submit][message]',
+    'En validant, vous autorisez l’enregistrement du moyen de paiement et les prélèvements futurs indiqués dans votre échéancier.'
+  )
 
-  // Ces métadonnées suivent l'objet de paiement récurrent ou ponctuel. Elles
-  // permettent de rattacher une facture reçue avant un autre webhook.
-  if (mode === 'subscription') {
-    parameters.set('subscription_data[metadata][order_id]', orderId)
-    parameters.set(
-      'subscription_data[metadata][source]',
-      'academie_salsabil_guest_cart'
-    )
-  } else {
-    parameters.set('payment_intent_data[metadata][order_id]', orderId)
-    parameters.set(
-      'payment_intent_data[metadata][source]',
-      'academie_salsabil_guest_cart'
-    )
-  }
+  appendInitialPaymentLineItems(parameters, quote.items)
 
-  // Le paiement annuel crée aussi un Customer Stripe afin de conserver une
-  // référence client sans imposer de compte sur le site.
-  if (mode === 'payment') {
-    parameters.set('customer_creation', 'always')
-  }
-
-  appendLineItems(parameters, quote.items, mode)
-
-  return { mode, parameters }
+  return { mode: 'payment', parameters }
 }
 
 // Recalcule le panier puis crée une page Checkout hébergée par Stripe.
@@ -171,6 +172,12 @@ export async function createStripeCheckoutSession({
     itemCount: quote.itemCount,
     items: quote.items,
     groupedTotals: quote.groupedTotals,
+    paymentSummary: quote.paymentSummary,
+    scheduleStatus: quote.items.some(
+      (item) => item.paymentSchedule.futurePayments.length > 0
+    )
+      ? 'awaiting_initial_payment'
+      : 'not_required',
     createdAt: timestamp,
     updatedAt: timestamp
   }

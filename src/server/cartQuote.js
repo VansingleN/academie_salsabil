@@ -3,6 +3,8 @@ import {
   getOfferFields,
   resolveCartItem
 } from '../data/offerCatalog.js'
+import { isValidBillingCountry } from '../data/countries.js'
+import { createPaymentSchedule } from './paymentSchedule.js'
 
 const MAX_CART_ITEMS = 20
 const MAX_IDENTIFIER_LENGTH = 160
@@ -54,12 +56,18 @@ function sanitizeSelections(offer, selections) {
 
     if (!value) continue
 
-    const choiceExists = field.choices.some((choice) => choice.value === value)
+    const normalizedValue = field.name === 'billingCountry'
+      ? String(value).toUpperCase()
+      : value
+    const choiceExists = field.name === 'billingCountry'
+      ? isValidBillingCountry(normalizedValue)
+      : field.choices.some((choice) => choice.value === normalizedValue)
+
     if (!choiceExists) {
       throw new CartQuoteError(`La valeur choisie pour « ${field.label} » est invalide.`)
     }
 
-    sanitizedSelections[field.name] = value
+    sanitizedSelections[field.name] = normalizedValue
   }
 
   if (
@@ -100,9 +108,38 @@ function buildGroupedTotals(items) {
   }, {})
 }
 
+function buildPaymentSummary(items) {
+  const summary = items.reduce((currentSummary, item) => {
+    currentSummary.firstPaymentExcludingTax +=
+      item.paymentSchedule.totals.firstPaymentExcludingTax
+    currentSummary.futurePaymentsExcludingTax +=
+      item.paymentSchedule.totals.futurePaymentsExcludingTax
+    currentSummary.contractTotalExcludingTax +=
+      item.paymentSchedule.totals.contractTotalExcludingTax
+    currentSummary.installmentCount += item.paymentSchedule.installmentCount
+
+    return currentSummary
+  }, {
+    firstPaymentExcludingTax: 0,
+    futurePaymentsExcludingTax: 0,
+    contractTotalExcludingTax: 0,
+    installmentCount: 0
+  })
+
+  return {
+    ...summary,
+    firstPaymentExcludingTax:
+      Math.round(summary.firstPaymentExcludingTax * 100) / 100,
+    futurePaymentsExcludingTax:
+      Math.round(summary.futurePaymentsExcludingTax * 100) / 100,
+    contractTotalExcludingTax:
+      Math.round(summary.contractTotalExcludingTax * 100) / 100
+  }
+}
+
 // Point d’entrée métier commun à Netlify et au serveur local Vite.
 // Aucune donnée tarifaire reçue du navigateur n’est lue ou recopiée.
-export function createCartQuote(payload) {
+export function createCartQuote(payload, { enrollmentDate = new Date() } = {}) {
   if (!isPlainObject(payload) || !Array.isArray(payload.items)) {
     throw new CartQuoteError('Le panier transmis est invalide.')
   }
@@ -116,14 +153,46 @@ export function createCartQuote(payload) {
   }
 
   const sanitizedItems = payload.items.map(sanitizeCartItem)
+  const uniqueCartItemIds = new Set(
+    sanitizedItems.map((item) => item.cartItemId)
+  )
+
+  // Cet identifiant participe aux clés d'idempotence Stripe. Deux lignes avec
+  // le même identifiant pourraient sinon demander des Prices différents avec
+  // une même clé et bloquer le provisionnement de l'échéancier.
+  if (uniqueCartItemIds.size !== sanitizedItems.length) {
+    throw new CartQuoteError(
+      'Le panier contient deux inscriptions avec le même identifiant.',
+      409,
+      'DUPLICATE_CART_ITEM_ID'
+    )
+  }
+
   const resolvedItems = sanitizedItems.map(resolveCartItem)
+  const itemsWithSchedules = resolvedItems.map((item) => {
+    const paymentSchedule = createPaymentSchedule({
+      offer: item,
+      enrollmentDate,
+      countryCode: item.selections.billingCountry
+    })
+
+    if (!paymentSchedule) {
+      throw new CartQuoteError(
+        `La formule « ${item.plan} » n’est plus disponible pour cette année scolaire.`,
+        409,
+        'PLAN_UNAVAILABLE'
+      )
+    }
+
+    return { ...item, paymentSchedule }
+  })
 
   return {
     valid: true,
     currency: 'EUR',
     taxMode: 'exclusive',
-    itemCount: resolvedItems.length,
-    items: resolvedItems.map((item) => ({
+    itemCount: itemsWithSchedules.length,
+    items: itemsWithSchedules.map((item) => ({
       cartItemId: item.cartItemId,
       offerId: item.id,
       curriculum: item.curriculum,
@@ -140,9 +209,14 @@ export function createCartQuote(payload) {
       totalAmount: item.totalAmount,
       applicationFee: item.applicationFee,
       deposit: item.deposit,
-      selectedOptions: item.selectedOptions
+      selectedOptions: item.selectedOptions,
+      billingCountry: item.selections.billingCountry,
+      paymentSchedule: item.paymentSchedule
     })),
-    groupedTotals: buildGroupedTotals(resolvedItems),
+    // groupedTotals conserve le montant normal d'une période pour les résumés
+    // d'interface. Checkout utilise exclusivement paymentSummary et l'échéancier.
+    groupedTotals: buildGroupedTotals(itemsWithSchedules),
+    paymentSummary: buildPaymentSummary(itemsWithSchedules),
     // Un identifiant de devis persistant sera ajouté avec Stripe ou une base de données.
     quotedAt: new Date().toISOString()
   }

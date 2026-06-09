@@ -1,4 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
+import {
+  ensureStripeSubscriptionSchedule
+} from './stripeSubscriptionSchedule.js'
 
 const DEFAULT_TOLERANCE_SECONDS = 300
 const SUPPORTED_EVENTS = new Set([
@@ -163,11 +166,14 @@ function applyEventToOrder(order, event, processedAt) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const isPaid = object.payment_status === 'paid'
+      const hasFuturePayments = order.items?.some(
+        (item) => item.paymentSchedule?.futurePayments?.length > 0
+      )
 
       return {
         ...nextOrder,
         status: isPaid
-          ? (object.mode === 'subscription' ? 'active' : 'paid')
+          ? (hasFuturePayments ? 'initial_payment_paid' : 'paid')
           : 'checkout_completed',
         paymentStatus: object.payment_status ?? order.paymentStatus,
         checkoutSessionId: object.id,
@@ -227,6 +233,9 @@ function applyEventToOrder(order, event, processedAt) {
 export async function processStripeEvent({
   event,
   orderRepository,
+  secretKey,
+  fetchImpl = fetch,
+  scheduleProvisioner = ensureStripeSubscriptionSchedule,
   now = () => new Date().toISOString()
 }) {
   if (!event?.id || !event?.type || !event?.data?.object) {
@@ -264,12 +273,28 @@ export async function processStripeEvent({
     )
   }
 
-  const updatedOrder = order
+  let updatedOrder = order
     ? applyEventToOrder(order, event, processedAt)
     : null
 
   if (updatedOrder) {
     await orderRepository.saveOrder(updatedOrder)
+  }
+
+  // Le paiement initial est confirmé avant toute création récurrente. Si Stripe
+  // refuse le schedule, l'événement reste sans reçu afin d'être retenté.
+  if (
+    event.type === 'checkout.session.completed'
+    && updatedOrder?.paymentStatus === 'paid'
+  ) {
+    updatedOrder = await scheduleProvisioner({
+      order: updatedOrder,
+      checkoutSession: event.data.object,
+      secretKey,
+      orderRepository,
+      fetchImpl,
+      now
+    })
   }
 
   const receipt = {

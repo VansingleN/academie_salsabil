@@ -10,6 +10,7 @@ import {
   getOptionPrice,
   getPricingPlans
 } from '../data/offerCatalog'
+import { withBillingCountryField } from '../data/countries'
 import './HighSchoolCurriculum.css'
 
 // Les contenus académiques restent locaux ; la tarification est lue dans offerCatalog.
@@ -226,7 +227,7 @@ function buildHighSchoolEnrollmentFields(planId) {
   // Le supplément LV3 suit automatiquement la formule mensuelle, trimestrielle ou annuelle.
   const surcharge = getOptionPrice('highSchool', 'lv3', planId)
 
-  return [
+  return withBillingCountryField([
     highSchoolTimeSlotField,
     // Décommentez la ligne suivante pour activer le choix de la filière.
     // highSchoolTrackField,
@@ -259,7 +260,7 @@ function buildHighSchoolEnrollmentFields(planId) {
         }
       ]
     }
-  ]
+  ])
 }
 
 function HighSchoolCurriculum() {
@@ -347,7 +348,7 @@ function HighSchoolCurriculum() {
         <div className="high-school-formulas-grid">
           {pricingPlans.map((plan) => (
             <article
-              className={`high-school-formula-card${plan.featured ? ' high-school-formula-card--featured' : ''}`}
+              className={`high-school-formula-card${plan.featured ? ' high-school-formula-card--featured' : ''}${!plan.available ? ' formula-card--unavailable' : ''}`}
               key={plan.name}
             >
               {plan.badge && <span className="high-school-formula-badge">{plan.badge}</span>}
@@ -363,8 +364,13 @@ function HighSchoolCurriculum() {
                   <li key={detail}>{detail}</li>
                 ))}
               </ul>
-              <button type="button" onClick={() => setSelectedPlan(plan)}>
-                Choisir cette formule
+              {!plan.available && <span className="formula-card-status">{plan.unavailableReason}</span>}
+              <button
+                type="button"
+                disabled={!plan.available}
+                onClick={() => setSelectedPlan(plan)}
+              >
+                {plan.available ? 'Choisir cette formule' : 'Inscriptions closes'}
               </button>
             </article>
           ))}
@@ -372,8 +378,8 @@ function HighSchoolCurriculum() {
 
         <p className="high-school-formulas-note">
           Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
-          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
-          prix total de la formule.
+          précisée avant l’ajout au panier. Le premier paiement et les frais de
+          dossier sont encaissés à l’inscription.
         </p>
       </section>
 
@@ -445,6 +451,9 @@ function HighSchoolCurriculum() {
         isOpen={Boolean(selectedPlan)}
         title={`Inscription ${grade.label}`}
         subtitle="Cursus Lycée"
+        offerId={selectedPlan
+          ? getOfferId('highSchool', grade.id, selectedPlan.id)
+          : null}
         fields={enrollmentFields}
         summary={(options) => {
           const optionPrice = options.lv3 && options.lv3 !== 'none'

@@ -11,10 +11,13 @@
     "test:checkout": "node scripts/test-stripe-checkout.mjs",
     "test:webhook": "node scripts/test-stripe-webhook.mjs",
     "test:session": "node scripts/test-stripe-session.mjs",
+    "test:schedule": "node scripts/test-payment-schedule.mjs",
+    "test:stripe-schedule": "node scripts/test-stripe-subscription-schedule.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
+    "i18n-iso-countries": "^7.14.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.17.0"

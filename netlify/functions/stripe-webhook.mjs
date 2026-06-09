@@ -36,7 +36,8 @@ export default async function stripeWebhook(request) {
     })
     const result = await processStripeEvent({
       event,
-      orderRepository: createNetlifyBlobsOrderRepository()
+      orderRepository: createNetlifyBlobsOrderRepository(),
+      secretKey: process.env.STRIPE_SECRET_KEY
     })
 
     return jsonResponse(result)

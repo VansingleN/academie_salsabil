@@ -1,4 +1,6 @@
 import { buildPricingPlans } from '../utils/pricing.js'
+import { billingCountryField } from './countries.js'
+import { isPlanAvailable } from '../server/paymentSchedule.js'
 
 // Ces paramètres décrivent le futur mode de facturation Stripe. Les nombres
 // d'échéances restent volontairement configurables tant que les règles ne sont pas figées.
@@ -7,13 +9,13 @@ const planConfiguration = {
     billingMode: 'subscription',
     interval: 'month',
     intervalCount: 1,
-    installmentCount: null
+    installmentCount: 10
   },
   quarterly: {
     billingMode: 'subscription',
     interval: 'month',
     intervalCount: 3,
-    installmentCount: null
+    installmentCount: 3
   },
   annual: {
     billingMode: 'one_time',
@@ -129,10 +131,14 @@ export function getCurriculumPricing(curriculumId, gradeId) {
   }
 }
 
-export function getPricingPlans(curriculumId, gradeId) {
+export function getPricingPlans(curriculumId, gradeId, enrollmentDate = new Date()) {
   const configuration = getCurriculumPricing(curriculumId, gradeId)
   return configuration
-    ? buildPricingPlans(configuration.pricing, configuration.fees)
+    ? buildPricingPlans(configuration.pricing, configuration.fees, {
+        monthly: isPlanAvailable('monthly', enrollmentDate),
+        quarterly: isPlanAvailable('quarterly', enrollmentDate),
+        annual: isPlanAvailable('annual', enrollmentDate)
+      })
     : []
 }
 
@@ -176,9 +182,8 @@ export function getOffer(offerId) {
     plan: planLabels[planId].name,
     period: planLabels[planId].period,
     amount: grade.prices[planId],
-    // Les montants sont déjà prévus, mais restent désactivés jusqu'à validation commerciale.
     applicationFee: {
-      enabled: false,
+      enabled: (curriculum.fees[planId] ?? 0) > 0,
       amount: curriculum.fees[planId] ?? 0
     },
     deposit: { enabled: false, amount: 0 },
@@ -191,6 +196,7 @@ export function getOfferFields(offer) {
   if (!offer) return []
 
   const fields = [
+    billingCountryField,
     {
       name: 'timeSlot',
       label: 'Tranche horaire',
@@ -237,10 +243,11 @@ export function getGradeChoices(curriculumId) {
   }))
 }
 
-export function getPlanChoices() {
+export function getPlanChoices(enrollmentDate = new Date()) {
   return Object.entries(planLabels).map(([value, plan]) => ({
     value,
-    label: plan.name
+    label: plan.name,
+    disabled: !isPlanAvailable(value, enrollmentDate)
   }))
 }
 
@@ -297,7 +304,11 @@ export function resolveCartItem(cartItem) {
   }
 }
 
-export function validateOfferSelections(offer, selections) {
+export function validateOfferSelections(
+  offer,
+  selections,
+  enrollmentDate = new Date()
+) {
   if (!offer) return false
 
   const fields = getOfferFields(offer)
@@ -309,7 +320,9 @@ export function validateOfferSelections(offer, selections) {
     || selections.lv3 === 'none'
     || selections.lv2 !== selections.lv3
 
-  return requiredFieldsAreFilled && languagesAreDifferent
+  return requiredFieldsAreFilled
+    && languagesAreDifferent
+    && isPlanAvailable(offer.planId, enrollmentDate)
 }
 
 export { curricula as offerCatalog }

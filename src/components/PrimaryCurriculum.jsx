@@ -10,6 +10,7 @@ import {
   getOptionPrice,
   getPricingPlans
 } from '../data/offerCatalog'
+import { withBillingCountryField } from '../data/countries'
 import './PrimaryCurriculum.css'
 
 // Le contenu des programmes reste ici ; les prix et suppléments sont centralisés.
@@ -202,7 +203,7 @@ function buildPrimaryEnrollmentFields(planId) {
   // Le supplément arabe dépend du rythme de paiement sélectionné.
   const surcharge = getOptionPrice('primary', 'arabicLanguage', planId)
 
-  return [
+  return withBillingCountryField([
     {
     name: 'timeSlot',
     label: 'Tranche horaire',
@@ -223,7 +224,7 @@ function buildPrimaryEnrollmentFields(planId) {
         { value: 'arabic', label: `Ajouter la langue arabe (+ ${formatEuro(surcharge)})` }
       ]
     }
-  ]
+  ])
 }
 
 function PrimaryCurriculum() {
@@ -313,7 +314,7 @@ function PrimaryCurriculum() {
         <div className="primary-formulas-grid">
           {pricingPlans.map((plan) => (
             <article
-              className={`primary-formula-card${plan.featured ? ' primary-formula-card--featured' : ''}`}
+              className={`primary-formula-card${plan.featured ? ' primary-formula-card--featured' : ''}${!plan.available ? ' formula-card--unavailable' : ''}`}
               key={plan.name}
             >
               {plan.badge && <span className="primary-formula-badge">{plan.badge}</span>}
@@ -329,8 +330,13 @@ function PrimaryCurriculum() {
                   <li key={detail}>{detail}</li>
                 ))}
               </ul>
-              <button type="button" onClick={() => setSelectedPlan(plan)}>
-                Choisir cette formule
+              {!plan.available && <span className="formula-card-status">{plan.unavailableReason}</span>}
+              <button
+                type="button"
+                disabled={!plan.available}
+                onClick={() => setSelectedPlan(plan)}
+              >
+                {plan.available ? 'Choisir cette formule' : 'Inscriptions closes'}
               </button>
             </article>
           ))}
@@ -338,8 +344,8 @@ function PrimaryCurriculum() {
 
         <p className="primary-formulas-note">
           Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
-          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
-          prix total de la formule.
+          précisée avant l’ajout au panier. Le premier paiement et les frais de
+          dossier sont encaissés à l’inscription.
         </p>
       </section>
 
@@ -411,6 +417,9 @@ function PrimaryCurriculum() {
         isOpen={Boolean(selectedPlan)}
         title={`Inscription ${grade.label}`}
         subtitle="Cursus Primaire"
+        offerId={selectedPlan
+          ? getOfferId('primary', grade.id, selectedPlan.id)
+          : null}
         fields={enrollmentFields}
         summary={(options) => {
           const optionPrice = options.arabicLanguage === 'arabic'

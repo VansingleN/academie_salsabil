@@ -34,6 +34,30 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
 - Préparation du portail client Stripe, désactivé par défaut.
 - Ajout de tests automatisés de signature, doublons, transitions de commande,
   vérification des sessions et ouverture du portail.
+- Ajout d'un calendrier scolaire 2026-2027 configurable.
+- Ajout du moteur d'échéancier mensuel, trimestriel et annuel.
+- Ajout du prorata journalier pour les inscriptions trimestrielles tardives.
+- Ajout du pays de facturation obligatoire et d'une structure fiscale désactivée.
+- Ajout de l'affichage du premier paiement, des échéances futures et des périodes
+  couvertes dans les modales et le panier.
+- Ajout des tests automatisés du calendrier, des proratas et de la fermeture annuelle.
+- Ajout de l'encaissement Stripe limité au premier paiement calculé par le
+  serveur, frais de dossier et options compris.
+- Ajout du consentement Checkout permettant d'enregistrer le moyen de paiement
+  pour les échéances hors session.
+- Ajout de la création idempotente des `Subscription Schedule` mensuels et
+  trimestriels après confirmation du webhook.
+- Ajout des états de commande dédiés à la préparation, à la réussite et à
+  l'échec du calendrier Stripe.
+- Ajout des tests automatisés des dates, montants, reprises et doublons des
+  calendriers Stripe.
+- Validation locale complète dans la sandbox Stripe des parcours mensuel,
+  trimestriel et annuel.
+- Validation du rejeu signé d'un webhook sans duplication du calendrier Stripe.
+- Activation des lectures à cohérence forte dans Netlify Blobs pour les
+  commandes, index et reçus webhook.
+- Refus côté serveur des identifiants de lignes de panier dupliqués afin de
+  protéger les clés d'idempotence des Prices Stripe.
 
 ### Modifié
 
@@ -51,6 +75,18 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
   les métadonnées Stripe.
 - La page de succès n'affiche une confirmation qu'après validation persistante
   par le webhook, jamais sur la seule base de la redirection.
+- Les frais de dossier sont désormais intégralement affectés au premier paiement.
+- Les options payantes sont réparties sur chaque échéance et proratisées avec la
+  période en cas d'inscription trimestrielle tardive.
+- La formule annuelle reste visible mais devient indisponible après la veille de
+  la rentrée.
+- Checkout utilise désormais toujours un paiement unique et ne facture que la
+  première échéance calculée par le moteur scolaire.
+- Les échéances mensuelles et trimestrielles futures sont créées uniquement
+  après la confirmation signée du paiement initial.
+- La formule annuelle ne crée aucun abonnement futur.
+- Stripe Tax reste explicitement désactivé dans Checkout, les Prices et les
+  calendriers d'abonnement.
 
 ## Changements depuis le commit 11a8b58
 

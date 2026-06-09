@@ -63,7 +63,7 @@ export async function verifyCheckoutSession({
 
   // Seul l'état persistant alimenté par le webhook confirme la commande.
   // Les états Stripe sont tout de même renvoyés pour expliquer une attente.
-  const confirmed = ['paid', 'active'].includes(order.status)
+  const confirmed = ['paid', 'scheduled', 'active'].includes(order.status)
 
   return {
     verified: true,
@@ -76,7 +76,7 @@ export async function verifyCheckoutSession({
     portalAvailable: Boolean(
       portalEnabled
       && getId(session.customer)
-      && session.mode === 'subscription'
+      && Boolean(order.subscriptionScheduleId || order.subscriptionId)
     )
   }
 }

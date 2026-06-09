@@ -23,39 +23,44 @@ const monthlyPayload = {
     cartItemId: 'checkout-primary-cp',
     offerId: 'primary-cp-monthly',
     selections: {
+      billingCountry: 'FR',
       timeSlot: 'morning',
       arabicLanguage: 'arabic'
     }
   }]
 }
 
-// Le générateur doit convertir 344 € en centimes et créer un abonnement mensuel.
+// Checkout encaisse septembre, l'option arabe et les frais de dossier.
 const monthlyQuote = createCartQuote(monthlyPayload)
 const monthlyParameters = buildCheckoutParameters(
   monthlyQuote,
   'https://academie-salsabil.netlify.app'
 )
 
-assert.equal(monthlyParameters.mode, 'subscription')
-assert.equal(monthlyParameters.parameters.get('line_items[0][price_data][unit_amount]'), '34400')
+assert.equal(monthlyParameters.mode, 'payment')
+assert.equal(monthlyParameters.parameters.get('line_items[0][price_data][unit_amount]'), '43400')
 assert.equal(
-  monthlyParameters.parameters.get('line_items[0][price_data][recurring][interval]'),
-  'month'
+  monthlyParameters.parameters.get('payment_intent_data[setup_future_usage]'),
+  'off_session'
 )
 assert.equal(
-  monthlyParameters.parameters.get('line_items[0][price_data][recurring][interval_count]'),
-  '1'
+  monthlyParameters.parameters.get('customer_creation'),
+  'always'
 )
 assert.equal(
-  monthlyParameters.parameters.get('subscription_data[metadata][order_id]'),
-  'order_preview'
+  monthlyParameters.parameters.get('automatic_tax[enabled]'),
+  'false'
+)
+assert.equal(
+  monthlyParameters.parameters.has('line_items[0][price_data][recurring][interval]'),
+  false
 )
 
 const annualQuote = createCartQuote({
   items: [{
     cartItemId: 'checkout-preschool-annual',
     offerId: 'preschool-ps-annual',
-    selections: { timeSlot: 'afternoon' }
+    selections: { billingCountry: 'FR', timeSlot: 'afternoon' }
   }]
 })
 const annualParameters = buildCheckoutParameters(
@@ -89,7 +94,7 @@ const checkout = await createStripeCheckoutSession({
 
 assert.equal(checkout.checkoutReady, true)
 assert.equal(checkout.testMode, true)
-assert.equal(checkout.mode, 'subscription')
+assert.equal(checkout.mode, 'payment')
 assert.equal(checkout.orderId, 'ord_checkout_test')
 assert.equal(capturedRequest.url, 'https://api.stripe.com/v1/checkout/sessions')
 assert.equal(
@@ -99,6 +104,12 @@ assert.equal(
 assert.equal(
   new URLSearchParams(capturedRequest.options.body).get('metadata[order_id]'),
   'ord_checkout_test'
+)
+assert.equal(
+  new URLSearchParams(capturedRequest.options.body).get(
+    'metadata[future_installment_count]'
+  ),
+  '9'
 )
 
 // Une clé live reste refusée tant que le projet n'est pas explicitement passé en production.
@@ -123,6 +134,7 @@ await assert.rejects(
           cartItemId: 'checkout-primary-ce1-annual',
           offerId: 'primary-ce1-annual',
           selections: {
+            billingCountry: 'FR',
             timeSlot: 'morning',
             arabicLanguage: 'none'
           }

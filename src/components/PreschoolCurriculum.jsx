@@ -5,6 +5,7 @@ import FormulaGradeSelector from './FormulaGradeSelector'
 import { addCartItem } from '../utils/cart'
 import { formatEuro } from '../utils/pricing'
 import { getCurriculumPricing, getOfferId, getPricingPlans } from '../data/offerCatalog'
+import { withBillingCountryField } from '../data/countries'
 import './PreschoolCurriculum.css'
 
 // Le contenu pédagogique reste local à la page ; toute la tarification vient du catalogue.
@@ -131,7 +132,7 @@ const grades = [
   }
 ]
 
-const preschoolEnrollmentFields = [
+const preschoolEnrollmentFields = withBillingCountryField([
   {
     name: 'timeSlot',
     label: 'Tranche horaire',
@@ -142,7 +143,7 @@ const preschoolEnrollmentFields = [
       { value: 'afternoon', label: 'Après-midi' }
     ]
   }
-]
+])
 
 function PreschoolCurriculum() {
   const [activeGrade, setActiveGrade] = useState(grades[0].id)
@@ -230,7 +231,7 @@ function PreschoolCurriculum() {
         <div className="preschool-formulas-grid">
           {pricingPlans.map((plan) => (
             <article
-              className={`preschool-formula-card${plan.featured ? ' preschool-formula-card--featured' : ''}`}
+              className={`preschool-formula-card${plan.featured ? ' preschool-formula-card--featured' : ''}${!plan.available ? ' formula-card--unavailable' : ''}`}
               key={plan.name}
             >
               {plan.badge && <span className="preschool-formula-badge">{plan.badge}</span>}
@@ -246,8 +247,13 @@ function PreschoolCurriculum() {
                   <li key={detail}>{detail}</li>
                 ))}
               </ul>
-              <button type="button" onClick={() => setSelectedPlan(plan)}>
-                Choisir cette formule
+              {!plan.available && <span className="formula-card-status">{plan.unavailableReason}</span>}
+              <button
+                type="button"
+                disabled={!plan.available}
+                onClick={() => setSelectedPlan(plan)}
+              >
+                {plan.available ? 'Choisir cette formule' : 'Inscriptions closes'}
               </button>
             </article>
           ))}
@@ -255,8 +261,8 @@ function PreschoolCurriculum() {
 
         <p className="preschool-formulas-note">
           Tarifs indicatifs hors taxes. Toute taxe éventuellement applicable sera
-          précisée sur le devis. L’acompte confirme l’inscription et reste déduit du
-          montant total de la formule.
+          précisée avant l’ajout au panier. Le premier paiement et les frais de
+          dossier sont encaissés à l’inscription.
         </p>
       </section>
 
@@ -328,6 +334,9 @@ function PreschoolCurriculum() {
         isOpen={Boolean(selectedPlan)}
         title={`Inscription ${grade.shortLabel}`}
         subtitle="Cursus Maternelle"
+        offerId={selectedPlan
+          ? getOfferId('preschool', grade.id, selectedPlan.id)
+          : null}
         fields={preschoolEnrollmentFields}
         summary={{
           label: `Formule ${selectedPlan?.name ?? ''}`,

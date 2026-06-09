@@ -119,6 +119,83 @@
   text-align: right;
 }
 
+.enrollment-modal-schedule {
+  display: grid;
+  gap: 13px;
+  padding: 17px;
+  border: 1px solid rgba(201, 152, 63, 0.28);
+  border-radius: 7px;
+  background: rgba(252, 247, 241, 0.78);
+}
+
+.enrollment-modal-schedule > header,
+.enrollment-modal-first-payment,
+.enrollment-modal-future-payments li {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.enrollment-modal-schedule > header > span,
+.enrollment-modal-future-payments > span {
+  color: var(--gold);
+  font: 800 11px/1.3 var(--sans);
+  text-transform: uppercase;
+}
+
+.enrollment-modal-schedule strong {
+  color: var(--green-primary);
+}
+
+.enrollment-modal-first-payment {
+  padding-top: 13px;
+  border-top: 1px solid rgba(13, 90, 55, 0.12);
+}
+
+.enrollment-modal-first-payment div {
+  display: grid;
+  gap: 4px;
+}
+
+.enrollment-modal-first-payment span {
+  color: #214c36;
+  font: 700 13px/1.35 var(--sans);
+}
+
+.enrollment-modal-first-payment small,
+.enrollment-modal-schedule p {
+  color: #6a7d73;
+  font: 500 11px/1.55 var(--sans);
+}
+
+.enrollment-modal-future-payments {
+  display: grid;
+  gap: 8px;
+}
+
+.enrollment-modal-future-payments ul {
+  display: grid;
+  max-height: 160px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.enrollment-modal-future-payments li {
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(13, 90, 55, 0.08);
+  color: #557064;
+  font: 600 11px/1.35 var(--sans);
+}
+
+.enrollment-modal-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+}
+
 .enrollment-modal-submit {
   min-height: 50px;
   border: 0;

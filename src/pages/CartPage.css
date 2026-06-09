@@ -128,6 +128,68 @@
   color: #294f3e;
 }
 
+.cart-item-schedule {
+  display: grid;
+  gap: 11px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(201, 152, 63, 0.24);
+  border-radius: 6px;
+  background: rgba(255, 253, 249, 0.62);
+}
+
+.cart-item-schedule header {
+  display: grid;
+  gap: 5px;
+}
+
+.cart-item-schedule header > div,
+.cart-item-schedule li {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.cart-item-schedule header span,
+.cart-item-schedule summary {
+  color: #385548;
+  font: 700 12px/1.4 var(--sans);
+}
+
+.cart-item-schedule small,
+.cart-item-schedule > p {
+  color: #718078;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cart-item-schedule details {
+  padding-top: 10px;
+  border-top: 1px solid rgba(13, 90, 55, 0.1);
+}
+
+.cart-item-schedule summary {
+  cursor: pointer;
+}
+
+.cart-item-schedule ul {
+  display: grid;
+  gap: 7px;
+  margin: 11px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cart-item-schedule li {
+  color: #64786f;
+  font-size: 11px;
+}
+
+.cart-item-schedule li strong {
+  color: #294f3e;
+  white-space: nowrap;
+}
+
 .cart-item-error {
   margin-top: 12px;
   color: #9a3e31;
@@ -191,6 +253,11 @@
 
 .cart-summary-totals strong {
   color: var(--green-primary);
+}
+
+.cart-summary-contract-total {
+  padding-top: 12px;
+  border-top: 1px solid rgba(13, 90, 55, 0.12);
 }
 
 .cart-quote-status {

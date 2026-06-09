@@ -64,7 +64,14 @@ function createBlobKey(group, id) {
 export function createNetlifyBlobsOrderRepository({
   store = getStore(STORE_NAME)
 } = {}) {
-  const getJson = (key) => store.get(key, { type: 'json' })
+  // Les commandes et reçus webhook viennent souvent d'être écrits par une
+  // autre Function. Une lecture forte évite le délai du cache distribué de
+  // Netlify Blobs, qui pourrait sinon faire croire que la commande n'existe pas
+  // encore ou permettre à deux livraisons proches de retraiter le même reçu.
+  const getJson = (key) => store.get(key, {
+    type: 'json',
+    consistency: 'strong'
+  })
 
   return {
     async saveOrder(order) {

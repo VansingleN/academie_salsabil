@@ -209,7 +209,8 @@ export function cartQuotePlugin() {
           })
           const result = await processStripeEvent({
             event,
-            orderRepository: localOrderRepository
+            orderRepository: localOrderRepository,
+            secretKey: process.env.STRIPE_SECRET_KEY
           })
           sendJson(response, 200, result)
         } catch (error) {

@@ -36,6 +36,7 @@ export async function requestStripe({
   secretKey,
   method = 'GET',
   parameters,
+  idempotencyKey,
   fetchImpl = fetch
 }) {
   assertStripeTestKey(secretKey)
@@ -44,6 +45,7 @@ export async function requestStripe({
     method,
     headers: {
       Authorization: `Bearer ${secretKey}`,
+      ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
       ...(parameters
         ? { 'Content-Type': 'application/x-www-form-urlencoded' }
         : {})

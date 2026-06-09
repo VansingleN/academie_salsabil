@@ -18,6 +18,7 @@ function stripeResponse(payload) {
 const repository = createMemoryOrderRepository()
 const order = {
   id: 'ord_verify',
+  publicOrderNumber: 'AS-2627-VERIFY',
   status: 'checkout_created',
   paymentStatus: 'unpaid',
   checkoutSessionId: 'cs_test_verify',
@@ -59,6 +60,7 @@ const confirmedVerification = await verifyCheckoutSession({
   fetchImpl: async () => stripeResponse(checkoutSession)
 })
 assert.equal(confirmedVerification.confirmed, true)
+assert.equal(confirmedVerification.publicOrderNumber, 'AS-2627-VERIFY')
 assert.equal(confirmedVerification.portalAvailable, true)
 
 await assert.rejects(

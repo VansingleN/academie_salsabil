@@ -58,6 +58,33 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
   commandes, index et reçus webhook.
 - Refus côté serveur des identifiants de lignes de panier dupliqués afin de
   protéger les clés d'idempotence des Prices Stripe.
+- Ajout d'un dossier d'inscription modulable avant Stripe Checkout.
+- Ajout des informations du responsable légal, de l'adresse de facturation et
+  d'une fiche pédagogique par enfant.
+- Ajout des consentements explicites aux CGV, à l'échéancier et à
+  l'enregistrement du moyen de paiement.
+- Versionnement et horodatage serveur des consentements.
+- Ajout d'une validation serveur stricte des données personnelles, des
+  correspondances élèves/panier et du pays de facturation.
+- Ajout de tests garantissant que les informations personnelles ne sont pas
+  placées dans les métadonnées Stripe.
+- Ajout d'un numéro de commande lisible de type `AS-2627-XXXXXXXX`.
+- Ajout d'une architecture d'e-mails transactionnels indépendante du
+  fournisseur et désactivée par défaut.
+- Ajout des modèles famille et équipe pour le paiement initial, la création de
+  l'échéancier, les échéances payées, les impayés et les annulations.
+- Ajout d'un mode local de prévisualisation HTML et texte avec données fictives.
+- Ajout de reçus atomiques par événement, modèle et audience pour empêcher les
+  doublons lors des rejeux webhook.
+- Ajout d'une clé d'idempotence stable à transmettre au futur fournisseur.
+- Ajout de journaux techniques ne contenant aucune donnée personnelle.
+- Ajout d'un adaptateur HTTP Brevo indépendant du service transactionnel.
+- Ajout d'un mode de livraison de test limité à une liste blanche explicite.
+- Ajout de la gestion des délais d'attente, erreurs réseau, réponses invalides
+  et erreurs Brevo temporaires ou définitives.
+- Ajout de tests simulant les réponses utiles de l'API Brevo sans envoi réel.
+- Documentation des variables d'environnement et de l'activation future du
+  domaine d'envoi.
 
 ### Modifié
 
@@ -87,6 +114,18 @@ Tous les changements importants apportés au projet sont consignés dans ce fich
 - La formule annuelle ne crée aucun abonnement futur.
 - Stripe Tax reste explicitement désactivé dans Checkout, les Prices et les
   calendriers d'abonnement.
+- Le bouton Checkout ouvre désormais le dossier d'inscription avant toute
+  création de session Stripe.
+- Les informations personnelles du dossier sont conservées uniquement dans la
+  commande serveur et ne sont pas enregistrées dans le panier local.
+- La page de confirmation affiche désormais le numéro de commande lisible à la
+  place de l'identifiant technique Stripe.
+- Le webhook traite les notifications seulement après la confirmation
+  persistée du paiement et de l'échéancier.
+- Les erreurs e-mail temporaires provoquent une reprise du webhook, tandis que
+  les refus définitifs sont enregistrés sans boucle de rejeu.
+- Le mode transactionnel reste `disabled` tant que Brevo, le domaine et toutes
+  les adresses requises ne sont pas configurés.
 
 ## Changements depuis le commit 11a8b58
 

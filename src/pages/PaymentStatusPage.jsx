@@ -98,7 +98,11 @@ function PaymentStatusPage({ status }) {
       <p>{message}</p>
 
       {isSuccess && sessionId && (
-        <small>Session de test : {sessionId}</small>
+        <small>
+          {verification.publicOrderNumber
+            ? `Commande : ${verification.publicOrderNumber}`
+            : `Session de test : ${sessionId}`}
+        </small>
       )}
 
       <div className="payment-status-actions">

@@ -7,6 +7,10 @@ import { createCartQuote } from '../src/server/cartQuote.js'
 import {
   createMemoryOrderRepository
 } from '../src/server/orderRepository.js'
+import {
+  createEnrollmentProfile
+} from './fixtures/enrollment-profile.mjs'
+import createCheckoutSessionFunction from '../netlify/functions/create-checkout-session.mjs'
 
 function createStripeResponse() {
   return new Response(JSON.stringify({
@@ -27,7 +31,8 @@ const monthlyPayload = {
       timeSlot: 'morning',
       arabicLanguage: 'arabic'
     }
-  }]
+  }],
+  enrollment: createEnrollmentProfile(['checkout-primary-cp'])
 }
 
 // Checkout encaisse septembre, l'option arabe et les frais de dossier.
@@ -80,11 +85,12 @@ assert.equal(
 )
 
 let capturedRequest
+const checkoutRepository = createMemoryOrderRepository()
 const checkout = await createStripeCheckoutSession({
   payload: monthlyPayload,
   secretKey: 'sk_test_placeholder',
   siteUrl: 'https://academie-salsabil.netlify.app/',
-  orderRepository: createMemoryOrderRepository(),
+  orderRepository: checkoutRepository,
   orderIdGenerator: () => 'ord_checkout_test',
   fetchImpl: async (url, options) => {
     capturedRequest = { url, options }
@@ -106,10 +112,25 @@ assert.equal(
   'ord_checkout_test'
 )
 assert.equal(
+  new URLSearchParams(capturedRequest.options.body).get('metadata[order_number]'),
+  'AS-2627-CHECKOUT'
+)
+assert.equal(
   new URLSearchParams(capturedRequest.options.body).get(
     'metadata[future_installment_count]'
   ),
   '9'
+)
+const stripeBody = capturedRequest.options.body.toString()
+assert.equal(stripeBody.includes('parent%40example.com'), false)
+assert.equal(stripeBody.includes('Amira'), false)
+const storedOrder = await checkoutRepository.getOrder('ord_checkout_test')
+assert.equal(storedOrder.publicOrderNumber, 'AS-2627-CHECKOUT')
+assert.equal(storedOrder.enrollment.guardian.firstName, 'Amira')
+assert.equal(storedOrder.enrollment.students[0].grade, 'CP')
+assert.equal(
+  storedOrder.enrollment.consents.paymentMethod.acceptedAt,
+  storedOrder.createdAt
 )
 
 // Une clé live reste refusée tant que le projet n'est pas explicitement passé en production.
@@ -139,7 +160,11 @@ await assert.rejects(
             arabicLanguage: 'none'
           }
         }
-      ]
+      ],
+      enrollment: createEnrollmentProfile([
+        'checkout-primary-cp',
+        'checkout-primary-ce1-annual'
+      ])
     },
     secretKey: 'sk_test_placeholder',
     siteUrl: 'https://academie-salsabil.netlify.app',
@@ -148,5 +173,19 @@ await assert.rejects(
   }),
   (error) => error.code === 'MIXED_BILLING_PLANS'
 )
+
+// L'adaptateur Netlify refuse un paiement sans dossier avant tout appel Stripe.
+const missingProfileResponse = await createCheckoutSessionFunction(new Request(
+  'https://academie-salsabil.netlify.app/api/create-checkout-session',
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items: monthlyPayload.items })
+  }
+))
+const missingProfilePayload = await missingProfileResponse.json()
+
+assert.equal(missingProfileResponse.status, 400)
+assert.equal(missingProfilePayload.code, 'INVALID_ENROLLMENT_PROFILE')
 
 console.log('Stripe Checkout : tests réussis')

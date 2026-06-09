@@ -4,6 +4,8 @@ import {
   requestStripe,
   StripeApiError
 } from './stripeApi.js'
+import { sanitizeEnrollmentProfile } from './enrollmentProfile.js'
+import { createPublicOrderNumber } from './orderReference.js'
 
 class StripeCheckoutError extends StripeApiError {}
 
@@ -72,7 +74,12 @@ function appendInitialPaymentLineItems(parameters, items) {
   })
 }
 
-function buildCheckoutParameters(quote, siteUrl, orderId = 'order_preview') {
+function buildCheckoutParameters(
+  quote,
+  siteUrl,
+  orderId = 'order_preview',
+  publicOrderNumber = 'AS-0000-PREVIEW'
+) {
   validateCheckoutItems(quote.items)
   const parameters = new URLSearchParams()
 
@@ -93,6 +100,7 @@ function buildCheckoutParameters(quote, siteUrl, orderId = 'order_preview') {
   parameters.set('cancel_url', `${siteUrl}/#/paiement/annule`)
   parameters.set('metadata[source]', 'academie_salsabil_guest_cart')
   parameters.set('metadata[order_id]', orderId)
+  parameters.set('metadata[order_number]', publicOrderNumber)
   parameters.set('metadata[item_count]', String(quote.itemCount))
   parameters.set('metadata[plan_id]', quote.items[0].planId)
   parameters.set(
@@ -136,12 +144,23 @@ export async function createStripeCheckoutSession({
   }
 
   const quote = createCartQuote(payload)
+  const timestamp = now()
+  const enrollment = sanitizeEnrollmentProfile({
+    enrollment: payload.enrollment,
+    quote,
+    now: () => timestamp
+  })
   const orderId = orderIdGenerator()
+  const publicOrderNumber = createPublicOrderNumber({
+    id: orderId,
+    items: quote.items
+  })
   const normalizedSiteUrl = siteUrl.replace(/\/+$/, '')
   const { mode, parameters } = buildCheckoutParameters(
     quote,
     normalizedSiteUrl,
-    orderId
+    orderId,
+    publicOrderNumber
   )
   const stripePayload = await requestStripe({
     path: '/checkout/sessions',
@@ -159,9 +178,9 @@ export async function createStripeCheckoutSession({
     )
   }
 
-  const timestamp = now()
   const order = {
     id: orderId,
+    publicOrderNumber,
     status: 'checkout_created',
     paymentStatus: 'unpaid',
     checkoutSessionId: stripePayload.id,
@@ -173,6 +192,9 @@ export async function createStripeCheckoutSession({
     items: quote.items,
     groupedTotals: quote.groupedTotals,
     paymentSummary: quote.paymentSummary,
+    // Les informations personnelles sont conservées uniquement dans notre
+    // stockage de commandes, jamais dans les métadonnées Stripe.
+    enrollment,
     scheduleStatus: quote.items.some(
       (item) => item.paymentSchedule.futurePayments.length > 0
     )

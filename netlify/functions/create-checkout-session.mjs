@@ -5,6 +5,9 @@ import {
 } from '../../src/server/stripeCheckout.js'
 import { StripeApiError } from '../../src/server/stripeApi.js'
 import {
+  EnrollmentProfileError
+} from '../../src/server/enrollmentProfile.js'
+import {
   createNetlifyBlobsOrderRepository
 } from '../../src/server/orderRepository.js'
 
@@ -44,6 +47,7 @@ export default async function createCheckoutSession(request) {
       error instanceof CartQuoteError
       || error instanceof StripeCheckoutError
       || error instanceof StripeApiError
+      || error instanceof EnrollmentProfileError
     ) {
       return jsonResponse(
         { checkoutReady: false, code: error.code, message: error.message },

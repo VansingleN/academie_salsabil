@@ -20,6 +20,7 @@ import {
 import { formatDate, formatEuro } from '../utils/pricing'
 import { requestCartQuote } from '../utils/cartQuoteApi'
 import { requestCheckoutSession } from '../utils/checkoutApi'
+import EnrollmentProfileModal from '../components/EnrollmentProfileModal'
 import './CartPage.css'
 
 // Un éditeur correspond à une inscription. Il garde un état local pour rendre
@@ -213,6 +214,7 @@ function CartPage() {
   const [quoteRequestVersion, setQuoteRequestVersion] = useState(0)
   const [checkoutStatus, setCheckoutStatus] = useState('idle')
   const [checkoutError, setCheckoutError] = useState('')
+  const [isEnrollmentOpen, setIsEnrollmentOpen] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -285,12 +287,12 @@ function CartPage() {
     removeCartItem(cartItemId)
   }
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (enrollment) => {
     setCheckoutStatus('loading')
     setCheckoutError('')
 
     try {
-      const checkout = await requestCheckoutSession(cart)
+      const checkout = await requestCheckoutSession(cart, enrollment)
       // Stripe héberge le formulaire bancaire : aucune donnée de carte ne touche notre site.
       window.location.assign(checkout.checkoutUrl)
     } catch (error) {
@@ -438,7 +440,14 @@ function CartPage() {
           )}
 
           {/* La fonction serveur recalcule encore le panier avant de contacter Stripe. */}
-          <button type="button" disabled={!canStartCheckout} onClick={handleCheckout}>
+          <button
+            type="button"
+            disabled={!canStartCheckout}
+            onClick={() => {
+              setCheckoutError('')
+              setIsEnrollmentOpen(true)
+            }}
+          >
             {hasInvalidItem
               ? 'Complétez vos inscriptions'
               : displayedQuoteStatus === 'loading'
@@ -448,7 +457,7 @@ function CartPage() {
                   : checkoutStatus === 'loading'
                     ? 'Ouverture de Stripe…'
                     : displayedQuoteStatus === 'success'
-                      ? 'Tester le paiement Stripe'
+                      ? 'Compléter le dossier'
                       : 'Paiement indisponible'}
           </button>
           <button className="cart-clear-button" type="button" onClick={clearCart}>
@@ -456,6 +465,21 @@ function CartPage() {
           </button>
         </aside>
       </div>
+
+      {isEnrollmentOpen && (
+        <EnrollmentProfileModal
+          isOpen
+          cart={cart}
+          resolvedItems={resolvedItems}
+          billingCountry={serverQuote?.items[0]?.billingCountry ?? ''}
+          submitting={checkoutStatus === 'loading'}
+          submitError={checkoutError}
+          onClose={() => {
+            if (checkoutStatus !== 'loading') setIsEnrollmentOpen(false)
+          }}
+          onSubmit={handleCheckout}
+        />
+      )}
     </main>
   )
 }

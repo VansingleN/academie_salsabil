@@ -5,6 +5,9 @@ import {
 } from './src/server/stripeCheckout.js'
 import { StripeApiError } from './src/server/stripeApi.js'
 import {
+  EnrollmentProfileError
+} from './src/server/enrollmentProfile.js'
+import {
   createMemoryOrderRepository
 } from './src/server/orderRepository.js'
 import {
@@ -16,6 +19,9 @@ import {
   StripeWebhookError,
   verifyStripeWebhook
 } from './src/server/stripeWebhook.js'
+import {
+  createConfiguredTransactionalEmailService
+} from './src/server/transactionalEmailConfiguration.js'
 
 // Le serveur Vite conserve les commandes tant qu'il reste lancé. En production,
 // les mêmes services utilisent Netlify Blobs à la place de cette mémoire locale.
@@ -99,6 +105,7 @@ export function cartQuotePlugin() {
             error instanceof CartQuoteError
             || error instanceof StripeCheckoutError
             || error instanceof StripeApiError
+            || error instanceof EnrollmentProfileError
           sendJson(response, knownError ? error.status : 500, {
             checkoutReady: false,
             code: knownError ? error.code : 'SERVER_ERROR',
@@ -210,7 +217,8 @@ export function cartQuotePlugin() {
           const result = await processStripeEvent({
             event,
             orderRepository: localOrderRepository,
-            secretKey: process.env.STRIPE_SECRET_KEY
+            secretKey: process.env.STRIPE_SECRET_KEY,
+            notificationService: createConfiguredTransactionalEmailService()
           })
           sendJson(response, 200, result)
         } catch (error) {

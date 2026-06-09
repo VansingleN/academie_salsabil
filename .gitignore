@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+email-previews
 *.local
 
 # Les futures clés Stripe et variables Netlify ne doivent jamais être versionnées.

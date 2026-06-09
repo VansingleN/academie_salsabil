@@ -2,6 +2,9 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import {
   ensureStripeSubscriptionSchedule
 } from './stripeSubscriptionSchedule.js'
+import {
+  createTransactionalEmailService
+} from './transactionalEmailService.js'
 
 const DEFAULT_TOLERANCE_SECONDS = 300
 const SUPPORTED_EVENTS = new Set([
@@ -236,6 +239,7 @@ export async function processStripeEvent({
   secretKey,
   fetchImpl = fetch,
   scheduleProvisioner = ensureStripeSubscriptionSchedule,
+  notificationService = createTransactionalEmailService(),
   now = () => new Date().toISOString()
 }) {
   if (!event?.id || !event?.type || !event?.data?.object) {
@@ -294,6 +298,17 @@ export async function processStripeEvent({
       orderRepository,
       fetchImpl,
       now
+    })
+  }
+
+  // Les notifications partent uniquement après la transition persistée et,
+  // pour Checkout, après la création réussie de l'échéancier. Leurs propres
+  // reçus empêchent les doublons si le webhook doit être rejoué ensuite.
+  if (updatedOrder) {
+    await notificationService.handleEvent({
+      event,
+      order: updatedOrder,
+      orderRepository
     })
   }
 

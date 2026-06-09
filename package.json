@@ -13,6 +13,10 @@
     "test:session": "node scripts/test-stripe-session.mjs",
     "test:schedule": "node scripts/test-payment-schedule.mjs",
     "test:stripe-schedule": "node scripts/test-stripe-subscription-schedule.mjs",
+    "test:enrollment": "node scripts/test-enrollment-profile.mjs",
+    "test:emails": "node scripts/test-transactional-emails.mjs",
+    "test:brevo": "node scripts/test-brevo-email-provider.mjs",
+    "preview:emails": "node scripts/preview-transactional-emails.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

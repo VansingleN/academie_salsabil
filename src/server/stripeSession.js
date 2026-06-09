@@ -72,6 +72,7 @@ export async function verifyCheckoutSession({
     sessionStatus: session.status,
     paymentStatus: session.payment_status,
     orderId: order.id,
+    publicOrderNumber: order.publicOrderNumber,
     orderStatus: order.status,
     portalAvailable: Boolean(
       portalEnabled

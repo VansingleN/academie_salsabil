@@ -23,6 +23,14 @@ La plateforme comprend actuellement :
 - un calendrier scolaire configurable et un moteur d'échéancier ;
 - la gestion des inscriptions tardives et du prorata trimestriel ;
 - un pays de facturation obligatoire avant l'ajout au panier.
+- un dossier d'inscription multi-enfants validé côté serveur ;
+- des consentements versionnés et horodatés avant Stripe Checkout ;
+- une séparation stricte entre données personnelles et métadonnées Stripe.
+- une architecture d'e-mails transactionnels indépendante du fournisseur ;
+- cinq modèles famille/équipe et une prévisualisation locale ;
+- des reçus d'envoi idempotents conservés avec les commandes.
+- un adaptateur Brevo isolé, testé et désactivé par défaut ;
+- une liste blanche obligatoire pour les futurs envois de recette.
 
 ## Changelog du prochain déploiement
 
@@ -68,6 +76,16 @@ La plateforme comprend actuellement :
 - Facturation des frais de dossier avec le premier paiement.
 - Fermeture automatique de l'offre annuelle après la veille de la rentrée.
 - Préparation d'une fiscalité configurable, actuellement désactivée.
+- Collecte du responsable légal, de l'adresse et d'une fiche par élève.
+- Validation et assainissement serveur des données d'inscription.
+- Versionnement des consentements CGV, échéancier et moyen de paiement.
+- Conservation des données personnelles uniquement dans la commande.
+- Ajout d'un numéro de commande lisible affiché après paiement.
+- Préparation des notifications de confirmation, échéance, impayé et
+  annulation.
+- Ajout d'une réservation atomique empêchant les doublons d'e-mails lors des
+  rejeux webhook.
+- Ajout d'un mode de prévisualisation HTML/texte sans fournisseur.
 
 ### Déploiement
 
@@ -93,6 +111,10 @@ npm run test:stripe-schedule
 npm run test:webhook
 npm run test:session
 npm run test:schedule
+npm run test:enrollment
+npm run test:emails
+npm run test:brevo
+npm run preview:emails
 ```
 
 Le détail historique des changements reste disponible dans

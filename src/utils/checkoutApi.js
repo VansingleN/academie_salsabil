@@ -20,13 +20,13 @@ async function readApiResponse(response, fallbackMessage) {
 
 // Stripe reste entièrement côté serveur : le front reçoit seulement l'URL
 // temporaire de la page Checkout hébergée.
-export async function requestCheckoutSession(items) {
+export async function requestCheckoutSession(items, enrollment) {
   const response = await fetch(CHECKOUT_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ items })
+    body: JSON.stringify({ items, enrollment })
   })
 
   const payload = await readApiResponse(

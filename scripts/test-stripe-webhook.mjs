@@ -109,6 +109,7 @@ const completedEvent = createEvent(
     metadata: { order_id: 'ord_subscription' }
   }
 )
+const notificationCalls = []
 const completedResult = await processStripeEvent({
   event: completedEvent,
   orderRepository: repository,
@@ -123,6 +124,14 @@ const completedResult = await processStripeEvent({
     await orderRepository.saveOrder(scheduledOrder)
     return scheduledOrder
   },
+  notificationService: {
+    async handleEvent({ event, order }) {
+      notificationCalls.push({
+        eventId: event.id,
+        orderStatus: order.status
+      })
+    }
+  },
   now: () => '2026-06-08T10:01:00.000Z'
 })
 const activeOrder = await repository.getOrder('ord_subscription')
@@ -131,6 +140,10 @@ assert.equal(completedResult.duplicate, false)
 assert.equal(activeOrder.status, 'scheduled')
 assert.equal(activeOrder.subscriptionScheduleId, 'sub_sched_test')
 assert.equal(activeOrder.subscriptionId, 'sub_test')
+assert.deepEqual(notificationCalls, [{
+  eventId: 'evt_checkout_completed',
+  orderStatus: 'scheduled'
+}])
 assert.equal(
   (await repository.findOrderBySubscription('sub_test')).id,
   'ord_subscription'
@@ -141,6 +154,11 @@ const duplicateResult = await processStripeEvent({
   orderRepository: repository,
   scheduleProvisioner: async () => {
     throw new Error('Le provisionnement ne doit pas être rejoué.')
+  },
+  notificationService: {
+    async handleEvent() {
+      throw new Error('Les notifications ne doivent pas être rejouées.')
+    }
   }
 })
 assert.equal(duplicateResult.duplicate, true)

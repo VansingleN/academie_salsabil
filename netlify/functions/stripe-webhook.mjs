@@ -6,6 +6,9 @@ import {
 import {
   createNetlifyBlobsOrderRepository
 } from '../../src/server/orderRepository.js'
+import {
+  createConfiguredTransactionalEmailService
+} from '../../src/server/transactionalEmailConfiguration.js'
 
 function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -37,7 +40,8 @@ export default async function stripeWebhook(request) {
     const result = await processStripeEvent({
       event,
       orderRepository: createNetlifyBlobsOrderRepository(),
-      secretKey: process.env.STRIPE_SECRET_KEY
+      secretKey: process.env.STRIPE_SECRET_KEY,
+      notificationService: createConfiguredTransactionalEmailService()
     })
 
     return jsonResponse(result)

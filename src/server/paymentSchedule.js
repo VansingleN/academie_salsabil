@@ -78,7 +78,8 @@ function buildScheduleResult({
   countryCode,
   installments,
   schoolYear,
-  lateEnrollment
+  lateEnrollment,
+  manualPayments = []
 }) {
   const firstPayment = installments[0]
   const futurePayments = installments.slice(1)
@@ -108,9 +109,13 @@ function buildScheduleResult({
         installments.reduce(
           (total, installment) => total + installment.subtotalExcludingTax,
           0
+        ) + manualPayments.reduce(
+          (total, payment) => total + payment.subtotalExcludingTax,
+          0
         )
       )
     },
+    manualPayments,
     tax: buildTaxSnapshot(countryCode)
   }
 }
@@ -221,6 +226,68 @@ function buildAnnualSchedule({
   ]
 }
 
+function buildOneTimeSchedule({
+  offer,
+  enrollmentDate,
+  countryCode
+}) {
+  if (offer.deposit.enabled && offer.deposit.paymentMode === 'group_pre_reservation') {
+    const depositAmount = offer.deposit.amount
+    const balanceAmount = roundCurrency(
+      offer.amount + offer.optionAmount + offer.applicationFee.amount - depositAmount
+    )
+
+    return {
+      installments: [
+        buildInstallment({
+          sequence: 1,
+          collection: 'immediate',
+          dueDate: enrollmentDate,
+          period: {
+            id: `${offer.id}-deposit`,
+            label: 'Acompte de pré-réservation',
+            start: enrollmentDate,
+            end: enrollmentDate
+          },
+          baseAmount: depositAmount,
+          optionAmount: 0,
+          applicationFeeAmount: 0,
+          countryCode
+        })
+      ],
+      manualPayments: [{
+        sequence: 2,
+        collection: 'manual_after_group_confirmation',
+        trigger: 'group_confirmation',
+        dueWithinHours: 72,
+        reminderAfterHours: 48,
+        periodId: `${offer.id}-balance`,
+        periodLabel: 'Solde après confirmation du groupe',
+        subtotalExcludingTax: balanceAmount,
+        tax: buildTaxSnapshot(countryCode)
+      }]
+    }
+  }
+
+  return [
+    buildInstallment({
+      sequence: 1,
+      collection: 'immediate',
+      dueDate: enrollmentDate,
+      period: {
+        id: offer.id,
+        label: offer.servicePeriodLabel ?? offer.period,
+        start: enrollmentDate,
+        end: enrollmentDate
+      },
+      baseAmount: offer.amount,
+      optionAmount: offer.optionAmount,
+      applicationFeeAmount: offer.applicationFee.amount,
+      countryCode
+    })
+  ]
+}
+
 export function isPlanAvailable(
   planId,
   enrollmentDate = new Date(),
@@ -232,6 +299,7 @@ export function isPlanAvailable(
   if (planId === 'annual') {
     return compareDates(normalizedDate, schoolYear.annualEnrollmentDeadline) <= 0
   }
+  if (planId === 'summerCamp') return true
   if (planId === 'monthly') {
     return getMonthlyPeriods(normalizedDate, schoolYear).length > 0
   }
@@ -260,7 +328,12 @@ export function createPaymentSchedule({
     countryCode,
     schoolYear
   }
-  const installments = offer.planId === 'monthly'
+  const oneTimeSchedule = offer.planId === 'summerCamp'
+    ? buildOneTimeSchedule(commonParameters)
+    : null
+  const installments = offer.planId === 'summerCamp'
+    ? (Array.isArray(oneTimeSchedule) ? oneTimeSchedule : oneTimeSchedule.installments)
+    : offer.planId === 'monthly'
     ? buildMonthlySchedule(commonParameters)
     : offer.planId === 'quarterly'
       ? buildQuarterlySchedule(commonParameters)
@@ -274,7 +347,9 @@ export function createPaymentSchedule({
     countryCode,
     installments,
     schoolYear,
-    lateEnrollment
+    lateEnrollment,
+    manualPayments: Array.isArray(oneTimeSchedule)
+      ? []
+      : oneTimeSchedule?.manualPayments ?? []
   })
 }
-

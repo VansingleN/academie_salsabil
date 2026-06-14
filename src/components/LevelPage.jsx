@@ -1,33 +1,35 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import './LevelPage.css'
 
 function LevelPage({ level, children }) {
-  const navigate = useNavigate()
-
   return (
     <main className={`level-page level-page--${level.slug}`}>
-      <section
-        className="level-page-hero"
-        style={{ backgroundImage: `linear-gradient(90deg, rgba(8, 58, 37, 0.88), rgba(8, 58, 37, 0.3)), url(${level.image})` }}
-      >
+      <section className="level-page-hero">
+        <img
+          className="level-page-hero-image"
+          src={level.image}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
+          loading="eager"
+          fetchPriority="high"
+        />
         <div className="level-page-hero-content">
-          <button
+          <Link
             className="level-page-back"
-            type="button"
-            onClick={() => navigate('/')}
+            to="/"
           >
             Retour à l'accueil
-          </button>
+          </Link>
           <span className="level-page-kicker">{level.eyebrow}</span>
           <h1>{level.title}</h1>
           <p>{level.intro}</p>
-          <button
+          <Link
             className="level-page-cta"
-            type="button"
-            onClick={() => navigate('/contact')}
+            to="/contact"
           >
             Échanger avec notre équipe
-          </button>
+          </Link>
         </div>
       </section>
 
@@ -55,9 +57,9 @@ function LevelPage({ level, children }) {
           <h2>{level.supportTitle}</h2>
         </div>
         <p>{level.supportText}</p>
-        <button type="button" onClick={() => navigate('/contact')}>
+        <Link to="/contact">
           Demander des informations
-        </button>
+        </Link>
       </section>
 
       {children}

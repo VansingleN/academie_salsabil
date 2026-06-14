@@ -10,6 +10,10 @@ const SCHOOLING_STATUSES = new Set([
   'not_enrolled',
   'other'
 ])
+const PRIMARY_GRADES = new Set(['cp', 'ce1', 'ce2', 'cm1', 'cm2'])
+const ADOLESCENT_GRADES = new Set(['6e', '5e', '4e', '3e', 'seconde'])
+const ARABIC_LEVELS = new Set(['0', '1', '2', '3', '4', '5'])
+const QURAN_LEVELS = new Set(['0', '1', '2', '3'])
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
@@ -124,6 +128,24 @@ function cleanBirthDate(value, now) {
   return value
 }
 
+function cleanAge(value) {
+  const age = Number(value)
+
+  if (!Number.isInteger(age) || age < 3 || age > 18) {
+    throw new EnrollmentProfileError(
+      'L’âge de l’élève doit être compris entre 3 et 18 ans.'
+    )
+  }
+
+  return age
+}
+
+function getSummerCampWorkshop(item) {
+  return item.selectedOptions.find(
+    (option) => option.name === 'workshop'
+  )?.value
+}
+
 function sanitizeGuardian(guardian) {
   assertAllowedKeys(
     guardian,
@@ -206,25 +228,44 @@ function sanitizeStudents(students, quoteItems, now) {
   }
 
   const studentsByCartItemId = new Map()
+  const quoteItemsByCartItemId = new Map(
+    quoteItems.map((item) => [item.cartItemId, item])
+  )
 
   for (const student of students) {
+    const quoteItem = quoteItemsByCartItemId.get(student?.cartItemId)
+    const isSummerCamp = quoteItem?.planId === 'summerCamp'
+    const workshop = isSummerCamp ? getSummerCampWorkshop(quoteItem) : null
+    const allowedKeys = isSummerCamp
+      ? workshop === 'Ateliers religieux'
+        ? [
+            'cartItemId',
+            'firstName',
+            'lastName',
+            'age',
+            'arabicLevel',
+            'quranLevel'
+          ]
+        : ['cartItemId', 'firstName', 'lastName', 'age', 'schoolGrade']
+      : [
+          'cartItemId',
+          'firstName',
+          'lastName',
+          'birthDate',
+          'schoolingStatus',
+          'learningObjectives',
+          'accommodations'
+        ]
+
     assertAllowedKeys(
       student,
-      [
-        'cartItemId',
-        'firstName',
-        'lastName',
-        'birthDate',
-        'schoolingStatus',
-        'currentSchool',
-        'learningObjectives',
-        'accommodations'
-      ],
+      allowedKeys,
       'La fiche élève'
     )
 
     if (
       typeof student.cartItemId !== 'string'
+      || !quoteItem
       || studentsByCartItemId.has(student.cartItemId)
     ) {
       throw new EnrollmentProfileError(
@@ -232,11 +273,7 @@ function sanitizeStudents(students, quoteItems, now) {
       )
     }
 
-    if (!SCHOOLING_STATUSES.has(student.schoolingStatus)) {
-      throw new EnrollmentProfileError('La situation scolaire est invalide.')
-    }
-
-    studentsByCartItemId.set(student.cartItemId, {
+    const identity = {
       cartItemId: student.cartItemId,
       firstName: cleanText(student.firstName, {
         label: 'Prénom de l’élève',
@@ -247,13 +284,57 @@ function sanitizeStudents(students, quoteItems, now) {
         label: 'Nom de l’élève',
         required: true,
         maxLength: 80
-      }),
+      })
+    }
+
+    if (isSummerCamp) {
+      const age = cleanAge(student.age)
+
+      if (workshop === 'Ateliers religieux') {
+        if (
+          !ARABIC_LEVELS.has(student.arabicLevel)
+          || !QURAN_LEVELS.has(student.quranLevel)
+        ) {
+          throw new EnrollmentProfileError(
+            'Les niveaux d’arabe et de mémorisation du Coran sont obligatoires.'
+          )
+        }
+
+        studentsByCartItemId.set(student.cartItemId, {
+          ...identity,
+          age,
+          workshop: 'religieux',
+          arabicLevel: student.arabicLevel,
+          quranLevel: student.quranLevel
+        })
+        continue
+      }
+
+      const allowedGrades = quoteItem.summerCampLevelId === 'adolescents'
+        ? ADOLESCENT_GRADES
+        : PRIMARY_GRADES
+
+      if (!allowedGrades.has(student.schoolGrade)) {
+        throw new EnrollmentProfileError('La classe actuelle est invalide.')
+      }
+
+      studentsByCartItemId.set(student.cartItemId, {
+        ...identity,
+        age,
+        workshop: 'academiques',
+        schoolGrade: student.schoolGrade
+      })
+      continue
+    }
+
+    if (!SCHOOLING_STATUSES.has(student.schoolingStatus)) {
+      throw new EnrollmentProfileError('La situation scolaire est invalide.')
+    }
+
+    studentsByCartItemId.set(student.cartItemId, {
+      ...identity,
       birthDate: cleanBirthDate(student.birthDate, now),
       schoolingStatus: student.schoolingStatus,
-      currentSchool: cleanText(student.currentSchool, {
-        label: 'Établissement actuel',
-        maxLength: 160
-      }),
       learningObjectives: cleanText(student.learningObjectives, {
         label: 'Objectifs pédagogiques',
         required: true,
@@ -330,7 +411,7 @@ export function sanitizeEnrollmentProfile({
   const acceptedAt = now()
 
   return {
-    schemaVersion: 'enrollment-profile-v1',
+    schemaVersion: 'enrollment-profile-v2',
     guardian: sanitizeGuardian(enrollment.guardian),
     billingAddress: sanitizeBillingAddress(
       enrollment.billingAddress,

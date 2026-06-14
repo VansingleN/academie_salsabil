@@ -1,0 +1,71 @@
+.terms-page {
+  width: min(100% - 44px, 980px);
+  margin: 0 auto;
+  padding: 72px 0 96px;
+  color: #496656;
+  text-align: left;
+}
+
+.terms-page__header {
+  max-width: 760px;
+  padding-bottom: 38px;
+  border-bottom: 1px solid rgba(13, 90, 55, 0.18);
+}
+
+.terms-page__header > span {
+  color: var(--gold);
+  font: 800 12px/1.3 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.terms-page h1 {
+  margin: 10px 0 18px;
+  color: var(--green-primary);
+  font: 700 clamp(40px, 6vw, 60px)/1 var(--heading);
+}
+
+.terms-page__header p {
+  max-width: 650px;
+  font: 500 15px/1.65 var(--sans);
+}
+
+.terms-page__content {
+  display: grid;
+  gap: 34px;
+  padding-top: 42px;
+}
+
+.terms-page section {
+  max-width: 800px;
+}
+
+.terms-page h2 {
+  margin: 0 0 12px;
+  color: var(--green-primary);
+  font: 700 25px/1.2 var(--heading);
+}
+
+.terms-page section p {
+  font: 400 14px/1.75 var(--sans);
+}
+
+.terms-page section p + p {
+  margin-top: 10px;
+}
+
+.terms-page aside {
+  max-width: 800px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--gold);
+  background: rgba(252, 247, 241, 0.72);
+  color: #6b725e;
+  font: 600 12px/1.6 var(--sans);
+}
+
+@media (max-width: 600px) {
+  .terms-page {
+    width: min(100% - 32px, 980px);
+    padding: 48px 0 70px;
+  }
+}

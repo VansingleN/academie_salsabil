@@ -1,6 +1,6 @@
 import LevelPage from '../components/LevelPage'
 import PreschoolCurriculum from '../components/PreschoolCurriculum'
-import image from '../images/banner_levels.png'
+import image from '../images/banner_levels.webp'
 
 const level = {
   slug: 'maternelle',

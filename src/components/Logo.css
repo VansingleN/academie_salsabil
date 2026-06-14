@@ -1,5 +1,6 @@
 .navbar-logo {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
 }
 
@@ -11,12 +12,14 @@
 }
 
 .logo-text {
+  min-width: max-content;
   font-family: 'Playfair Display', serif;
   font-size: 16px;
   font-weight: 400;
   color: var(--green-primary);
   margin-left: 12px;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .logo-subtext {

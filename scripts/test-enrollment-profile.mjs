@@ -41,7 +41,7 @@ const sanitized = sanitizeEnrollmentProfile({
   now: () => '2026-06-09T18:00:00.000Z'
 })
 
-assert.equal(sanitized.schemaVersion, 'enrollment-profile-v1')
+assert.equal(sanitized.schemaVersion, 'enrollment-profile-v2')
 assert.equal(sanitized.guardian.firstName, 'Amira')
 assert.equal(sanitized.guardian.email, 'parent@example.com')
 assert.equal(sanitized.billingAddress.countryCode, 'FR')
@@ -135,6 +135,111 @@ assert.throws(
     },
     quote,
     now: () => '2026-06-09T18:00:00.000Z'
+  }),
+  EnrollmentProfileError
+)
+
+const academicSummerCart = [{
+  cartItemId: 'profile-summer-academic',
+  offerId: 'summerCamp-primary-personnalises-doux-une-semaine',
+  selections: {
+    billingCountry: 'FR',
+    workshop: 'academiques'
+  }
+}]
+const academicSummerQuote = createCartQuote({ items: academicSummerCart })
+const academicSummerProfile = createEnrollmentProfile([
+  'profile-summer-academic'
+])
+
+academicSummerProfile.students = [{
+  cartItemId: 'profile-summer-academic',
+  firstName: 'Yasmine',
+  lastName: 'Benali',
+  age: '8',
+  schoolGrade: 'ce2'
+}]
+
+const sanitizedAcademicSummer = sanitizeEnrollmentProfile({
+  enrollment: academicSummerProfile,
+  quote: academicSummerQuote
+})
+
+assert.equal(sanitizedAcademicSummer.students[0].age, 8)
+assert.equal(sanitizedAcademicSummer.students[0].schoolGrade, 'ce2')
+assert.equal(sanitizedAcademicSummer.students[0].workshop, 'academiques')
+
+const religiousSummerCart = [{
+  cartItemId: 'profile-summer-religious',
+  offerId: 'summerCamp-primary-groupes-doux-deux-semaines',
+  selections: {
+    billingCountry: 'FR',
+    workshop: 'religieux'
+  }
+}]
+const religiousSummerQuote = createCartQuote({ items: religiousSummerCart })
+const religiousSummerProfile = createEnrollmentProfile([
+  'profile-summer-religious'
+])
+
+religiousSummerProfile.students = [{
+  cartItemId: 'profile-summer-religious',
+  firstName: 'Adam',
+  lastName: 'Benali',
+  age: '10',
+  arabicLevel: '2',
+  quranLevel: '1'
+}]
+
+const sanitizedReligiousSummer = sanitizeEnrollmentProfile({
+  enrollment: religiousSummerProfile,
+  quote: religiousSummerQuote
+})
+
+assert.equal(sanitizedReligiousSummer.students[0].age, 10)
+assert.equal(sanitizedReligiousSummer.students[0].arabicLevel, '2')
+assert.equal(sanitizedReligiousSummer.students[0].quranLevel, '1')
+assert.equal(sanitizedReligiousSummer.students[0].workshop, 'religieux')
+
+const adolescentSummerCart = [{
+  cartItemId: 'profile-summer-adolescents',
+  offerId: 'summerCamp-adolescents-personnalises-equilibre-deux-semaines',
+  selections: {
+    billingCountry: 'FR',
+    workshop: 'academiques'
+  }
+}]
+const adolescentSummerQuote = createCartQuote({ items: adolescentSummerCart })
+const adolescentSummerProfile = createEnrollmentProfile([
+  'profile-summer-adolescents'
+])
+
+adolescentSummerProfile.students = [{
+  cartItemId: 'profile-summer-adolescents',
+  firstName: 'Maryam',
+  lastName: 'Benali',
+  age: '14',
+  schoolGrade: '3e'
+}]
+
+const sanitizedAdolescentSummer = sanitizeEnrollmentProfile({
+  enrollment: adolescentSummerProfile,
+  quote: adolescentSummerQuote
+})
+
+assert.equal(sanitizedAdolescentSummer.students[0].age, 14)
+assert.equal(sanitizedAdolescentSummer.students[0].schoolGrade, '3e')
+
+assert.throws(
+  () => sanitizeEnrollmentProfile({
+    enrollment: {
+      ...religiousSummerProfile,
+      students: [{
+        ...religiousSummerProfile.students[0],
+        arabicLevel: '9'
+      }]
+    },
+    quote: religiousSummerQuote
   }),
   EnrollmentProfileError
 )

@@ -8,41 +8,74 @@
 }
 
 .navbar-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1480px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 34px;
   height: 92px;
 }
 
-
+.navbar-brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: clamp(22px, 2.5vw, 46px);
+}
 
 .navbar-phone {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 10px;
-  font-size: 18px;
+  font-size: 15px;
   color: var(--green-primary);
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'Inter', 'Poppins', sans-serif;
-  margin-left: 70px;
+  white-space: nowrap;
+}
+
+.navbar-phone .link-icon {
+  display: flex;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  color: var(--green-primary);
+}
+
+.navbar-phone .link-icon svg {
+  display: block;
+  width: 28px;
+  height: 28px;
 }
 
 .navbar-links {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   list-style: none;
-  gap: 24px;
+  gap: clamp(16px, 1.55vw, 26px);
   margin: 0;
   padding: 0;
+}
+
+.navbar-links > li,
+.navbar-links a,
+.nav-link-button,
+.navbar-cart-button {
+  white-space: nowrap;
 }
 
 .navbar-links a {
   text-decoration: none;
   color: var(--green-primary);
   font-weight: 500;
+  font-size: 15px;
   transition: color 0.3s ease;
   position: relative;
   font-family: 'Inter', 'Poppins', sans-serif;
@@ -68,6 +101,8 @@
 }
 
 .logo-button {
+  display: block;
+  flex: 0 0 auto;
   background: none;
   border: none;
   padding: 0;
@@ -94,7 +129,7 @@
   cursor: pointer;
   transition: color 0.3s ease;
   font-family: 'Inter', 'Poppins', sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   position: relative;
   padding: 0;
 }
@@ -118,6 +153,23 @@
   width: 100%;
 }
 
+.nav-link-button--seasonal {
+  color: #8b682b;
+  font-weight: 700;
+}
+
+.nav-link-button--seasonal::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 4px rgba(201, 152, 63, 0.14);
+}
+
 /* Accès compact au panier ; le badge est dimensionné pour rester stable de 0 à 99+. */
 .navbar-cart-button {
   display: inline-flex;
@@ -139,6 +191,10 @@
   background: rgba(201, 152, 63, 0.08);
 }
 
+.navbar-cart-button::after {
+  display: none;
+}
+
 .navbar-cart-button strong {
   display: grid;
   min-width: 26px;
@@ -148,6 +204,18 @@
   background: var(--green-primary);
   color: #fff;
   font-size: 12px;
+}
+
+.navbar-cart-button--highlighted {
+  border-color: var(--gold);
+  background: rgba(201, 152, 63, 0.16);
+  animation: navbar-cart-highlight 0.65s ease;
+}
+
+@keyframes navbar-cart-highlight {
+  50% {
+    transform: scale(1.08);
+  }
 }
 
 .navbar-curricula {
@@ -224,6 +292,21 @@
   gap: 2px;
 }
 
+.navbar-curricula-label {
+  display: block;
+  padding: 5px 12px 6px;
+  color: #8b682b;
+  font: 800 10px/1.2 'Inter', 'Poppins', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.navbar-curricula-label--levels {
+  margin-top: 7px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(13, 90, 55, 0.12);
+}
+
 .navbar-curricula-group button,
 .navbar-curricula-group a {
   display: flex;
@@ -281,6 +364,77 @@
   font-weight: 700;
 }
 
+@media (max-width: 1280px) and (min-width: 769px) {
+  .navbar-phone {
+    gap: 7px;
+    font-size: 12px;
+  }
+
+  .navbar-container {
+    gap: 18px;
+    padding-inline: 20px;
+  }
+
+  .navbar-links {
+    gap: clamp(11px, 1.2vw, 18px);
+  }
+}
+
+@media (max-width: 1020px) and (min-width: 769px) {
+  .navbar-container {
+    height: 84px;
+    padding-inline: 18px;
+  }
+
+  .navbar-brand .logo-image {
+    height: 62px;
+  }
+
+  .navbar-brand .logo-text {
+    margin-left: 9px;
+    font-size: 13px;
+  }
+
+  .navbar-brand .logo-subtext {
+    font-size: 16px;
+  }
+
+  .navbar-brand {
+    gap: 12px;
+  }
+
+  .navbar-phone {
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .navbar-phone .link-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  .navbar-phone .link-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .navbar-links {
+    gap: 9px;
+  }
+
+  .navbar-links a,
+  .nav-link-button {
+    font-size: 13px;
+  }
+
+  .navbar-cart-button {
+    gap: 6px;
+    min-height: 36px;
+    padding-left: 10px;
+    font-size: 12px;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .navbar-container {
@@ -288,6 +442,12 @@
     height: auto;
     padding: 15px 20px;
     gap: 15px;
+  }
+
+  .navbar-brand {
+    width: 100%;
+    justify-content: center;
+    gap: 20px;
   }
 
   .logo-image {
@@ -346,5 +506,12 @@
   .navbar-cart-button {
     /* Dans la navigation mobile empilée, le bouton reste centré comme les autres liens. */
     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    flex-direction: column;
+    gap: 8px;
   }
 }

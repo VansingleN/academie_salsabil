@@ -4,8 +4,8 @@ import {
   billingAddressFields,
   consentDefinitions,
   createEnrollmentDraft,
-  guardianFields,
-  studentFields
+  getStudentFields,
+  guardianFields
 } from '../data/enrollmentProfile'
 import { getBillingCountryLabel } from '../data/countries'
 import './EnrollmentProfileModal.css'
@@ -54,12 +54,16 @@ function FormField({ field, value, id, onChange }) {
     <input
       {...commonProps}
       type={field.type}
-      min={field.type === 'date'
-        ? oldestBirthDate.toISOString().slice(0, 10)
-        : undefined}
-      max={field.type === 'date'
-        ? youngestBirthDate.toISOString().slice(0, 10)
-        : undefined}
+      min={field.type === 'number'
+        ? field.min
+        : field.type === 'date'
+          ? oldestBirthDate.toISOString().slice(0, 10)
+          : undefined}
+      max={field.type === 'number' ? field.max : (
+        field.type === 'date'
+          ? youngestBirthDate.toISOString().slice(0, 10)
+          : undefined
+      )}
     />
   )
 }
@@ -239,7 +243,7 @@ function EnrollmentProfileModal({
                       </strong>
                     </header>
                     <FieldGroup
-                      fields={studentFields}
+                      fields={getStudentFields(item)}
                       values={student}
                       idPrefix={`student-${index}`}
                       onChange={(name, value) =>

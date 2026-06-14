@@ -1,6 +1,6 @@
 import LevelPage from '../components/LevelPage'
 import PrimaryCurriculum from '../components/PrimaryCurriculum'
-import image from '../images/banner_levels.png'
+import image from '../images/banner_levels.webp'
 
 const level = {
   slug: 'primaire',

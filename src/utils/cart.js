@@ -1,5 +1,6 @@
 const CART_STORAGE_KEY = 'academie-salsabil-cart'
 const CART_UPDATED_EVENT = 'academie-salsabil-cart-updated'
+const CART_ITEM_ADDED_EVENT = 'academie-salsabil-cart-item-added'
 
 // Le stockage local ne contient que des références et des choix utilisateur.
 // Les prix et libellés sont toujours reconstruits depuis offerCatalog.
@@ -7,12 +8,20 @@ export function getCart() {
   try {
     const storedCart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) ?? []
     // Migration douce des articles créés avant l'introduction du catalogue centralisé.
-    const normalizedCart = storedCart.map((item) => {
+    const normalizedCart = storedCart.map((item, index) => {
       const legacyOfferId = item.offerId ?? item.productId
-      const offerId = legacyOfferId?.replace(/^high-school-/, 'highSchool-')
+      const normalizedOfferId = legacyOfferId
+        ?.replace(/^high-school-/, 'highSchool-')
+        .replace(/^summer-camp-/, 'summerCamp-')
+      // Les premières cartes Summer Camp ne distinguaient pas encore
+      // l'accompagnement personnalisé des ateliers groupés.
+      const offerId = normalizedOfferId?.replace(
+        /^summerCamp-primary-(doux|equilibre)-(une-semaine|deux-semaines|un-mois)$/,
+        'summerCamp-primary-personnalises-$1-$2'
+      )
 
       return {
-        cartItemId: item.cartItemId,
+        cartItemId: item.cartItemId ?? `legacy-cart-item-${index}`,
         offerId,
         selections: item.selections ?? item.options ?? {}
       }
@@ -37,6 +46,9 @@ export function addCartItem(item) {
   }
 
   saveCart([...cart, cartItem])
+  window.dispatchEvent(new CustomEvent(CART_ITEM_ADDED_EVENT, {
+    detail: { cartItem, cartCount: cart.length + 1 }
+  }))
 
   return cartItem
 }
@@ -70,4 +82,4 @@ function saveCart(cart) {
   window.dispatchEvent(new CustomEvent(CART_UPDATED_EVENT, { detail: cart }))
 }
 
-export { CART_STORAGE_KEY, CART_UPDATED_EVENT }
+export { CART_ITEM_ADDED_EVENT, CART_STORAGE_KEY, CART_UPDATED_EVENT }

@@ -27,7 +27,6 @@ export function createEnrollmentProfile(
       lastName: 'Benali',
       birthDate: index === 0 ? '2018-03-15' : '2015-09-20',
       schoolingStatus: 'school_enrolled',
-      currentSchool: 'École du Centre',
       learningObjectives: 'Renforcer les bases et gagner en autonomie.',
       accommodations: ''
     })),

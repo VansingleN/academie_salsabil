@@ -156,6 +156,97 @@
   line-height: 1.65;
 }
 
+.faq--compact {
+  padding: 42px 22px 48px;
+}
+
+.faq--compact .faq-container {
+  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.3fr);
+  gap: 34px;
+}
+
+.faq--compact .faq-heading {
+  position: static;
+}
+
+.faq--compact .faq-heading h2 {
+  margin-bottom: 12px;
+  font-size: 32px;
+}
+
+.faq--compact .faq-heading p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.faq-mascot {
+  display: flex;
+  justify-content: flex-end;
+  margin: 18px 8px 0 0;
+}
+
+.faq-mascot img {
+  display: block;
+  width: clamp(130px, 14vw, 174px);
+  height: auto;
+  filter: drop-shadow(0 12px 14px rgba(13, 90, 55, 0.12));
+}
+
+.faq--compact .faq-kicker {
+  margin-bottom: 9px;
+  font-size: 12px;
+}
+
+.faq--compact .faq-list {
+  gap: 8px;
+}
+
+.faq--compact .faq-question {
+  min-height: 54px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+
+.faq--compact .faq-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.faq--compact .faq-answer {
+  padding: 0 18px 15px;
+}
+
+.faq--compact .faq-answer p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.faq-complete-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 9px;
+  padding-top: 5px;
+  color: #4f744e;
+  font: 500 13px/1.4 'Inter', 'Poppins', sans-serif;
+  text-align: right;
+}
+
+.faq-complete-link a {
+  color: #a97720;
+  font-weight: 800;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.faq-complete-link a:hover {
+  color: var(--green-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 @media (max-width: 900px) {
   .faq {
     padding: 58px 18px 68px;
@@ -180,6 +271,28 @@
 
   .faq-visual {
     max-width: 520px;
+  }
+
+  .faq--compact .faq-container {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .faq-mascot {
+    justify-content: center;
+    margin: 14px 0 -4px;
+  }
+
+  .faq-mascot img {
+    width: 130px;
+  }
+}
+
+@media (max-width: 560px) {
+  .faq-complete-link {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 3px;
   }
 }
 

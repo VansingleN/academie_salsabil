@@ -1,42 +1,48 @@
-import LevelTree from './LevelTree'
+import { Link } from 'react-router-dom'
+import academyHeroPanorama from '../images/academy_home_hero_panorama.jpg'
 import './Hero.css'
 
 function Hero() {
+  const scrollToSolutions = () => {
+    document.getElementById('online-courses-title')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  }
+
   return (
-    <section className="hero">
+    <section
+      className="hero"
+      aria-labelledby="home-hero-title"
+      style={{ '--hero-background': `url(${academyHeroPanorama})` }}
+    >
       <div className="hero-container">
         <div className="hero-content">
           <div className="hero-text">
-            <h1 className="hero-title">
-              <span>A c a d é m i e</span>
-              <strong>S a l s a b i l</strong>
+            <span className="hero-kicker">Académie Salsabil</span>
+            <h1 id="home-hero-title">
+              Apprendre avec confiance, grandir avec des repères
             </h1>
-
-            <h2 className="hero-statement">
-              "Il n'est pas d'école qui égale un foyer digne, ni de maître qui
-              remplace un parent vertueux."
-            </h2>
-
-            <p className="hero-subtitle">
-              C’est sur cette dualité entre le foyer et l’enseignement que s’inscrit
-              l’Académie Salsabil. Nous accompagnons les élèves, de la maternelle au
-              lycée, à travers nos cursus complets, du soutien scolaire et de l’aide
-              aux devoirs, avec un suivi attentif adapté à chaque niveau.
-              <br />
-              <br />
-              Notre mission est d’offrir aux familles un cadre rassurant et
-              bienveillant, ancré dans des valeurs musulmanes authentiques, où chaque
-              enfant peut apprendre sereinement, retrouver confiance et s’épanouir
-              pleinement.
+            <p>
+              Des accompagnements en ligne attentifs et structurés pour aider
+              chaque élève à progresser à son rythme, dans un cadre rassurant
+              pour toute la famille.
             </p>
 
-            <button className="hero-cta" type="button">
-              Découvrir l'académie
-            </button>
-          </div>
+            <div className="hero-actions">
+              <button type="button" onClick={scrollToSolutions}>
+                Découvrir nos accompagnements
+              </button>
+              <Link to="/contact">
+                Échanger avec l’équipe
+              </Link>
+            </div>
 
-          <div className="hero-level-tree">
-            <LevelTree />
+            <ul className="hero-reassurance" aria-label="Nos engagements">
+              <li>Cours en ligne</li>
+              <li>Suivi humain</li>
+              <li>Parcours personnalisés</li>
+            </ul>
           </div>
         </div>
       </div>

@@ -142,4 +142,88 @@ const responsePayload = await response.json()
 assert.equal(response.status, 200)
 assert.equal(responsePayload.groupedTotals.quarterly, 1510)
 
+const summerCampQuote = createCartQuote({
+  items: [{
+    cartItemId: 'test-summer-camp-primary',
+    offerId: 'summerCamp-primary-personnalises-equilibre-deux-semaines',
+    selections: {
+      billingCountry: 'FR',
+      workshop: 'academiques'
+    }
+  }]
+})
+
+assert.equal(summerCampQuote.items[0].baseAmount, 120)
+assert.equal(summerCampQuote.groupedTotals.summerCamp, 120)
+assert.equal(summerCampQuote.paymentSummary.contractTotalExcludingTax, 120)
+assert.equal(summerCampQuote.items[0].paymentSchedule.installmentCount, 1)
+
+const groupedSummerCampQuote = createCartQuote({
+  items: [{
+    cartItemId: 'test-summer-camp-grouped',
+    offerId: 'summerCamp-primary-groupes-doux-un-mois',
+    selections: {
+      billingCountry: 'FR',
+      workshop: 'religieux'
+    }
+  }]
+})
+
+assert.equal(groupedSummerCampQuote.items[0].baseAmount, 128)
+assert.equal(groupedSummerCampQuote.items[0].deposit.amount, 40)
+assert.equal(
+  groupedSummerCampQuote.items[0].paymentSchedule.totals.firstPaymentExcludingTax,
+  40
+)
+assert.equal(groupedSummerCampQuote.items[0].paymentSchedule.futurePayments.length, 0)
+assert.equal(groupedSummerCampQuote.items[0].paymentSchedule.manualPayments.length, 1)
+assert.equal(
+  groupedSummerCampQuote.items[0].paymentSchedule.manualPayments[0].subtotalExcludingTax,
+  88
+)
+assert.equal(
+  groupedSummerCampQuote.items[0].paymentSchedule.manualPayments[0].dueWithinHours,
+  72
+)
+assert.equal(
+  groupedSummerCampQuote.items[0].paymentSchedule.manualPayments[0].reminderAfterHours,
+  48
+)
+assert.equal(groupedSummerCampQuote.paymentSummary.firstPaymentExcludingTax, 40)
+assert.equal(groupedSummerCampQuote.paymentSummary.futurePaymentsExcludingTax, 88)
+assert.equal(groupedSummerCampQuote.paymentSummary.contractTotalExcludingTax, 128)
+
+const adolescentSummerCampQuote = createCartQuote({
+  items: [{
+    cartItemId: 'test-summer-camp-adolescents',
+    offerId: 'summerCamp-adolescents-groupes-doux-deux-semaines',
+    selections: {
+      billingCountry: 'FR',
+      workshop: 'academiques'
+    }
+  }]
+})
+
+assert.equal(adolescentSummerCampQuote.items[0].baseAmount, 64)
+assert.equal(adolescentSummerCampQuote.items[0].summerCampLevelId, 'adolescents')
+assert.equal(adolescentSummerCampQuote.items[0].grade, 'Adolescents · Ateliers groupés · Programme doux')
+assert.equal(
+  adolescentSummerCampQuote.paymentSummary.firstPaymentExcludingTax,
+  20
+)
+
+assert.throws(
+  () => createCartQuote({
+    items: [{
+      cartItemId: 'test-invalid-grouped-week',
+      offerId: 'summerCamp-primary-groupes-doux-une-semaine',
+      selections: {
+        billingCountry: 'FR',
+        workshop: 'academiques'
+      }
+    }]
+  }),
+  CartQuoteError
+)
+
 console.log('Validation serveur du panier : tests réussis')

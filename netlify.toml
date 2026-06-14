@@ -5,6 +5,28 @@
 [functions]
   directory = "netlify/functions"
 
+[[headers]]
+  for = "/panier"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/paiement/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# Les fichiers générés par Vite portent un hash dans leur nom : ils peuvent
+# rester en cache durablement sans risque de servir une ancienne version.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Le front utilise une URL stable et indépendante du fournisseur serverless.
 [[redirects]]
   from = "/api/cart-quote"
@@ -31,7 +53,27 @@
   to = "/.netlify/functions/create-customer-portal"
   status = 200
 
-# HashRouter gère déjà les routes du site, mais ce fallback protège les accès directs.
+[[redirects]]
+  from = "/api/support-requests"
+  to = "/.netlify/functions/create-support-request"
+  status = 200
+
+[[redirects]]
+  from = "/api/contact-messages"
+  to = "/.netlify/functions/contact-messages"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin-orders"
+  to = "/.netlify/functions/admin-orders"
+  status = 200
+
+[[redirects]]
+  from = "/api/admin-export"
+  to = "/.netlify/functions/admin-export"
+  status = 200
+
+# BrowserRouter nécessite ce fallback pour les accès directs aux routes React.
 [[redirects]]
   from = "/*"
   to = "/index.html"

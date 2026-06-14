@@ -1,6 +1,6 @@
 import LevelPage from '../components/LevelPage'
 import HighSchoolCurriculum from '../components/HighSchoolCurriculum'
-import image from '../images/banner_levels.png'
+import image from '../images/banner_levels.webp'
 
 const level = {
   slug: 'lycee',

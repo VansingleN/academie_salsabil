@@ -1,4 +1,4 @@
-// BASE_URL vaut /academie_salsabil/ sur GitHub et / sur Netlify.
+// BASE_URL vaut / par défaut et /academie_salsabil/ sur un build GitHub Pages dédié.
 const CART_QUOTE_ENDPOINT = `${import.meta.env.BASE_URL}api/cart-quote`
 
 // Le client transmet uniquement les références minimales conservées dans localStorage.

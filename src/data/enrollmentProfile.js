@@ -50,7 +50,6 @@ export const studentFields = [
       { value: 'other', label: 'Autre situation' }
     ]
   },
-  { name: 'currentSchool', label: 'Établissement actuel', type: 'text' },
   {
     name: 'learningObjectives',
     label: 'Objectifs pédagogiques',
@@ -65,6 +64,95 @@ export const studentFields = [
     placeholder: 'DYS, rythme particulier, outils déjà utilisés…'
   }
 ]
+
+const summerCampIdentityFields = [
+  { name: 'firstName', label: 'Prénom de l’élève', type: 'text', required: true },
+  { name: 'lastName', label: 'Nom de l’élève', type: 'text', required: true },
+  {
+    name: 'age',
+    label: 'Âge de l’élève',
+    type: 'number',
+    min: 3,
+    max: 18,
+    required: true
+  }
+]
+
+const summerCampAcademicFields = [
+  ...summerCampIdentityFields,
+  {
+    name: 'schoolGrade',
+    label: 'Classe actuelle',
+    type: 'select',
+    required: true,
+    options: [
+      { value: 'cp', label: 'CP' },
+      { value: 'ce1', label: 'CE1' },
+      { value: 'ce2', label: 'CE2' },
+      { value: 'cm1', label: 'CM1' },
+      { value: 'cm2', label: 'CM2' }
+    ]
+  }
+]
+
+const summerCampAdolescentAcademicFields = [
+  ...summerCampIdentityFields,
+  {
+    name: 'schoolGrade',
+    label: 'Classe actuelle',
+    type: 'select',
+    required: true,
+    options: [
+      { value: '6e', label: '6e' },
+      { value: '5e', label: '5e' },
+      { value: '4e', label: '4e' },
+      { value: '3e', label: '3e' },
+      { value: 'seconde', label: 'Seconde' }
+    ]
+  }
+]
+
+const summerCampReligiousFields = [
+  ...summerCampIdentityFields,
+  {
+    name: 'arabicLevel',
+    label: 'Niveau de langue arabe',
+    type: 'select',
+    required: true,
+    options: [
+      { value: '0', label: '0 - Débutant' },
+      { value: '1', label: '1 - Alphabétisé' },
+      { value: '2', label: '2 - Notions' },
+      { value: '3', label: '3 - Intermédiaire' },
+      { value: '4', label: '4 - Avancé' },
+      { value: '5', label: '5 - Fluent' }
+    ]
+  },
+  {
+    name: 'quranLevel',
+    label: 'Niveau de mémorisation du Coran',
+    type: 'select',
+    required: true,
+    options: [
+      { value: '0', label: '0 - Pas d’expérience' },
+      { value: '1', label: '1 - Quelques sourates courtes' },
+      { value: '2', label: '2 - Intermédiaire' },
+      { value: '3', label: '3 - Avancé' }
+    ]
+  }
+]
+
+export function getStudentFields(item) {
+  if (item?.offerType !== 'summerCamp') return studentFields
+
+  if (item.selections?.workshop === 'religieux') {
+    return summerCampReligiousFields
+  }
+
+  return item.summerCampLevelId === 'adolescents'
+    ? summerCampAdolescentAcademicFields
+    : summerCampAcademicFields
+}
 
 export const consentDefinitions = [
   {
@@ -104,11 +192,16 @@ export function createEnrollmentDraft(cart, billingCountry) {
       cartItemId: item.cartItemId,
       firstName: '',
       lastName: '',
-      birthDate: '',
-      schoolingStatus: '',
-      currentSchool: '',
-      learningObjectives: '',
-      accommodations: ''
+      ...(item.offerId?.startsWith('summerCamp-')
+        ? item.selections?.workshop === 'religieux'
+          ? { age: '', arabicLevel: '', quranLevel: '' }
+          : { age: '', schoolGrade: '' }
+        : {
+            birthDate: '',
+            schoolingStatus: '',
+            learningObjectives: '',
+            accommodations: ''
+          })
     })),
     consents: Object.fromEntries(
       consentDefinitions.map((consent) => [

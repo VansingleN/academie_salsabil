@@ -1,6 +1,6 @@
 .online-courses {
   background: linear-gradient(135deg, #E8F3ED 0%, #FBF7F0 100%);
-  padding: 64px 22px 80px;
+  padding: 42px 22px 52px;
 }
 
 .online-courses-container {
@@ -11,10 +11,10 @@
 
 .online-courses-header h2 {
   margin: 0;
-  max-width: 980px;
+  max-width: 860px;
   color: var(--green-primary);
   font-family: 'Playfair Display', serif;
-  font-size: 44px;
+  font-size: 36px;
   font-weight: 700;
   line-height: 1.05;
   text-transform: uppercase;
@@ -23,34 +23,34 @@
 .online-courses-rule {
   display: block;
   width: 76px;
-  height: 7px;
-  margin: 16px 0 14px;
+  height: 5px;
+  margin: 12px 0 10px;
   background: var(--gold);
 }
 
 .online-courses-header p {
   color: var(--green-secondary);
   font-family: 'Inter', 'Poppins', sans-serif;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 500;
 }
 
 .online-courses-tabs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 34px;
+  margin-top: 22px;
   border-top: 1px solid rgba(13, 90, 55, 0.45);
 }
 
 .online-courses-tab {
   position: relative;
-  min-height: 78px;
+  min-height: 60px;
   border: 1px solid rgba(13, 90, 55, 0.45);
   border-left: 0;
   border-top: 0;
   background: rgba(252, 247, 241, 0.75);
   color: var(--green-primary);
-  font: 700 16px/1.2 'Inter', 'Poppins', sans-serif;
+  font: 700 14px/1.2 'Inter', 'Poppins', sans-serif;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -69,9 +69,9 @@
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -21px;
-  width: 30px;
-  height: 30px;
+  bottom: -16px;
+  width: 22px;
+  height: 22px;
   opacity: 0;
   background: var(--green-primary);
   border-right: 1px solid rgba(13, 90, 55, 0.45);
@@ -87,40 +87,40 @@
 .online-courses-panel {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.9fr);
-  gap: 52px;
-  padding: 58px 48px 48px;
+  gap: 38px;
+  padding: 38px 38px 34px;
   background: rgba(232, 243, 237, 0.92);
 }
 
 .online-courses-copy h3 {
   max-width: 610px;
-  margin: 0 0 26px;
+  margin: 0 0 18px;
   color: var(--green-primary);
   font-family: 'Playfair Display', serif;
-  font-size: 27px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
 }
 
 .online-courses-block+.online-courses-block {
-  margin-top: 28px;
+  margin-top: 20px;
 }
 
 .online-courses-block h4 {
-  margin: 0 0 14px;
+  margin: 0 0 9px;
   color: var(--green-primary);
   font-family: 'Inter', 'Poppins', sans-serif;
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .online-courses-block p {
   max-width: 670px;
-  margin: 0 0 14px;
+  margin: 0 0 9px;
   color: #335f42;
   font-family: 'Inter', 'Poppins', sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .online-courses-block strong {
@@ -128,6 +128,7 @@
 }
 
 .online-courses-cta {
+  display: inline-block;
   margin-top: 8px;
   padding: 12px 22px;
   border: 0;
@@ -136,6 +137,7 @@
   color: #fff;
   font: 700 12px/1 'Inter', 'Poppins', sans-serif;
   cursor: pointer;
+  text-decoration: none;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -152,6 +154,9 @@
 }
 
 .online-courses-level-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 42px;
   padding: 0 12px;
   border: 1px solid var(--green-primary);
@@ -160,6 +165,7 @@
   color: var(--green-primary);
   font: 700 12px/1.2 'Inter', 'Poppins', sans-serif;
   cursor: pointer;
+  text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
@@ -172,7 +178,7 @@
 .online-courses-benefits {
   align-self: start;
   margin-top: 8px;
-  padding: 32px 26px 24px;
+  padding: 24px 22px 20px;
   border-radius: 14px;
   background: var(--green-primary);
   color: #fff;
@@ -180,10 +186,10 @@
 }
 
 .online-courses-benefits h3 {
-  margin: 0 0 24px;
+  margin: 0 0 18px;
   color: #fff;
   font-family: 'Playfair Display', serif;
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 700;
   line-height: 1;
   text-align: center;
@@ -192,8 +198,8 @@
 
 .online-courses-benefits ul {
   display: grid;
-  gap: 12px;
-  margin: 0 0 24px;
+  gap: 9px;
+  margin: 0 0 18px;
   padding: 0;
   list-style: none;
 }
@@ -201,7 +207,7 @@
 .online-courses-benefits li {
   position: relative;
   padding-left: 28px;
-  font-size: 15px;
+  font-size: 13px;
   font-family: 'Inter', 'Poppins', sans-serif;
   font-weight: 700;
   line-height: 1.35;
@@ -236,19 +242,26 @@
 
 .online-courses-visual {
   position: relative;
-  min-height: 198px;
+  min-height: 150px;
+  aspect-ratio: 16 / 9;
   background: rgba(252, 247, 241, 0.18);
   border-radius: 14px;
   overflow: hidden;
 }
 
 .online-courses-visual img {
-  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  min-height: 198px;
-  aspect-ratio: 16 / 9;
+  height: 100%;
+  opacity: 0;
   object-fit: cover;
   object-position: center;
+  pointer-events: none;
+}
+
+.online-courses-visual .online-courses-image--active {
+  opacity: 1;
 }
 
 @media (max-width: 900px) {
@@ -328,7 +341,7 @@
     font-size: 25px;
   }
 
-  .online-courses-visual img {
+  .online-courses-visual {
     min-height: 176px;
   }
 

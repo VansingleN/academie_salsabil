@@ -180,6 +180,21 @@ export async function ensureStripeSubscriptionSchedule({
     return order
   }
 
+  const hasManualBalance = order.items.some(
+    (item) => item.paymentSchedule.manualPayments?.length > 0
+  )
+
+  if (hasManualBalance) {
+    const pendingOrder = {
+      ...order,
+      status: 'deposit_paid',
+      scheduleStatus: 'manual_balance_pending',
+      updatedAt: now()
+    }
+    await orderRepository.saveOrder(pendingOrder)
+    return pendingOrder
+  }
+
   const configuration = getFuturePaymentConfiguration(order)
 
   if (!configuration) {

@@ -2,10 +2,10 @@
   flex: 1;
   background:
     linear-gradient(rgba(252, 247, 241, 0.38), rgba(252, 247, 241, 0.38)),
-    url('./images/bg_oilpaint.png') center top / cover fixed;
+    url('./images/bg_oilpaint.webp') center top / cover fixed;
 }
 
-.site-oilpaint-background .home-page > .hero,
+.site-oilpaint-background .home-page > .curriculum-explorer,
 .site-oilpaint-background .home-page > .method,
 .site-oilpaint-background .home-page > .online-courses,
 .site-oilpaint-background .home-page > .school-support,
@@ -13,6 +13,10 @@
 .site-oilpaint-background .home-page > .faq,
 .site-oilpaint-background .level-page,
 .site-oilpaint-background .ief-page {
+  background: transparent;
+}
+
+.site-oilpaint-background .summer-camp-page {
   background: transparent;
 }
 
@@ -36,6 +40,22 @@
 
 .site-oilpaint-background .contact {
   background: rgba(252, 247, 241, 0.42);
+}
+
+.route-loading {
+  display: grid;
+  min-height: 52vh;
+  padding: 40px 20px;
+  place-items: center;
+  color: var(--green-primary);
+  font: 700 14px/1.4 var(--sans);
+}
+
+.route-loading span {
+  padding: 14px 20px;
+  border: 1px solid rgba(13, 90, 55, 0.16);
+  border-radius: 999px;
+  background: rgba(252, 247, 241, 0.88);
 }
 
 @media (max-width: 768px) {

@@ -96,5 +96,9 @@ assert.equal(
   new URLSearchParams(requests[1].options.body).get('customer'),
   'cus_verify'
 )
+assert.equal(
+  new URLSearchParams(requests[1].options.body).get('return_url'),
+  'https://academie-salsabil.netlify.app/panier'
+)
 
 console.log('Sessions Stripe : tests réussis')

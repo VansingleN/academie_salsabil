@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import './Contact.css'
 import Logo from './Logo'
+import FAQ from './FAQ'
+import { submitContactMessage } from '../utils/contactMessageApi'
 import {
   IconEmail,
   IconWhatsApp,
@@ -10,41 +13,97 @@ import {
 } from './ContactIcons'
 
 function Contact() {
+  const { hash, search } = useLocation()
+  const navigate = useNavigate()
+  const [isFaqManuallyOpen, setIsFaqManuallyOpen] = useState(false)
+  const isFaqOpen = hash === '#faq' || isFaqManuallyOpen
+  const requestedService = new URLSearchParams(search).get('service')
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
     email: '',
     phone: '',
-    message: ''
+    message: requestedService === 'soutien-scolaire'
+      ? 'Bonjour, je souhaite être conseillé(e) pour un accompagnement de soutien scolaire.'
+      : '',
+    consent: false,
+    website: '',
+    formStartedAt: new Date().toISOString()
+  })
+  const [submission, setSubmission] = useState({
+    status: 'idle',
+    message: '',
+    reference: ''
   })
 
+  const handleFaqToggle = () => {
+    const willOpen = !isFaqOpen
+    setIsFaqManuallyOpen(willOpen)
+
+    if (willOpen) {
+      navigate('/contact#faq')
+    } else if (hash === '#faq') {
+      navigate('/contact', { replace: true })
+    }
+  }
+
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value, type, checked } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    // Reset form
-    setFormData({
-      firstname: '',
-      lastname: '',
-      email: '',
-      phone: '',
-      message: ''
-    })
+    setSubmission({ status: 'loading', message: '', reference: '' })
+
+    try {
+      const result = await submitContactMessage(formData)
+      setSubmission({
+        status: 'success',
+        message: '',
+        reference: result.reference
+      })
+      setFormData({
+        firstname: '',
+        lastname: '',
+        email: '',
+        phone: '',
+        message: '',
+        consent: false,
+        website: '',
+        formStartedAt: new Date().toISOString()
+      })
+    } catch (error) {
+      setSubmission({
+        status: 'error',
+        message: error.message,
+        reference: ''
+      })
+    }
   }
 
   return (
-    <section className="contact">
-      <div className="contact-container">
+    <>
+      <section className="contact">
+        <div className="contact-container">
         <div className="contact-form-column">
         <h2 className="form-title">Formulaire de contact</h2>
         <form className="contact-form" onSubmit={handleSubmit}>
+          <div className="contact-form-honeypot" aria-hidden="true">
+            <label>
+              Votre site internet
+              <input
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                tabIndex="-1"
+                autoComplete="off"
+              />
+            </label>
+          </div>
           <div className="form-row">
             <div className="form-group">
               <input
@@ -110,7 +169,45 @@ function Contact() {
             ></textarea>
           </div>
 
-          <button type="submit" className="contact-button">Envoyer</button>
+          <label className="contact-consent">
+            <input
+              type="checkbox"
+              name="consent"
+              checked={formData.consent}
+              onChange={handleChange}
+              aria-describedby="contact-privacy-note"
+              required
+            />
+            <span>J’accepte d’être recontacté au sujet de ce message. *</span>
+          </label>
+          <p className="contact-privacy-note" id="contact-privacy-note">
+            Vos informations servent uniquement à traiter votre message. Elles sont
+            traitées pendant 12 mois au maximum, puis supprimées après un délai
+            technique de 30 jours. Une clôture anticipée réduit cette durée.{' '}
+            <Link to="/politique-de-confidentialite">En savoir plus</Link>.
+          </p>
+
+          <button
+            type="submit"
+            className="contact-button"
+            disabled={submission.status === 'loading'}
+          >
+            {submission.status === 'loading' ? 'Enregistrement…' : 'Envoyer'}
+          </button>
+
+          {submission.status === 'success' && (
+            <div className="contact-form-feedback contact-form-feedback--success" role="status">
+              <strong>Votre message a bien été enregistré.</strong>
+              <p>Référence : {submission.reference}</p>
+            </div>
+          )}
+
+          {submission.status === 'error' && (
+            <div className="contact-form-feedback contact-form-feedback--error" role="alert">
+              <strong>Votre message n’a pas été envoyé.</strong>
+              <p>{submission.message}</p>
+            </div>
+          )}
           <div className="logo-form">
             <Logo className="contact-logo" />
           </div>
@@ -152,7 +249,13 @@ function Contact() {
               </div>
             </a>
 
-            <button type="button" className="contact-link faq">
+            <button
+              type="button"
+              className="contact-link faq"
+              aria-expanded={isFaqOpen}
+              aria-controls="contact-faq"
+              onClick={handleFaqToggle}
+            >
               <span className="link-icon"><IconFaq /></span>
               <div className="link-content">
                 <span className="link-title">FAQ</span>
@@ -162,8 +265,23 @@ function Contact() {
 
           </div>
         </div>
+        </div>
+      </section>
+
+      <div
+        className={`contact-faq-reveal${isFaqOpen ? ' contact-faq-reveal--open' : ''}`}
+        id="contact-faq"
+        aria-hidden={!isFaqOpen}
+      >
+        <div className="contact-faq-reveal__inner">
+          <FAQ
+            id="faq"
+            title="Vos questions, nos réponses"
+            introduction="Consultez les informations détaillées sur les cours, les inscriptions, le suivi et l’organisation de l’Académie."
+          />
+        </div>
       </div>
-    </section>
+    </>
   )
 }
 

@@ -53,7 +53,11 @@ function appendInitialPaymentLineItems(parameters, items) {
     )
     parameters.set(
       `${prefix}[price_data][product_data][name]`,
-      `${item.curriculum} · ${item.grade} · premier paiement`
+      `${item.curriculum} · ${item.grade} · ${
+        item.manualPayments?.length > 0
+          ? 'acompte de pré-réservation'
+          : 'premier paiement'
+      }`
     )
     parameters.set(
       `${prefix}[price_data][product_data][description]`,
@@ -82,6 +86,7 @@ function buildCheckoutParameters(
 ) {
   validateCheckoutItems(quote.items)
   const parameters = new URLSearchParams()
+  const normalizedSiteUrl = siteUrl.replace(/\/+$/, '')
 
   // Le premier paiement est toujours ponctuel. Les prélèvements suivants sont
   // créés seulement après sa confirmation, depuis le webhook sécurisé.
@@ -92,12 +97,14 @@ function buildCheckoutParameters(
   parameters.set('billing_address_collection', 'required')
   parameters.set('phone_number_collection[enabled]', 'true')
   parameters.set('customer_creation', 'always')
-  parameters.set('payment_intent_data[setup_future_usage]', 'off_session')
+  if (quote.items.some((item) => item.paymentSchedule.futurePayments.length > 0)) {
+    parameters.set('payment_intent_data[setup_future_usage]', 'off_session')
+  }
   parameters.set(
     'success_url',
-    `${siteUrl}/#/paiement/succes?session_id={CHECKOUT_SESSION_ID}`
+    `${normalizedSiteUrl}/paiement/succes?session_id={CHECKOUT_SESSION_ID}`
   )
-  parameters.set('cancel_url', `${siteUrl}/#/paiement/annule`)
+  parameters.set('cancel_url', `${normalizedSiteUrl}/paiement/annule`)
   parameters.set('metadata[source]', 'academie_salsabil_guest_cart')
   parameters.set('metadata[order_id]', orderId)
   parameters.set('metadata[order_number]', publicOrderNumber)
@@ -115,7 +122,9 @@ function buildCheckoutParameters(
   )
   parameters.set(
     'custom_text[submit][message]',
-    'En validant, vous autorisez l’enregistrement du moyen de paiement et les prélèvements futurs indiqués dans votre échéancier.'
+    quote.items.some((item) => item.manualPayments?.length > 0)
+      ? 'Ce paiement correspond à l’acompte de pré-réservation. Le solde sera demandé par lien sécurisé après confirmation du groupe.'
+      : 'En validant, vous autorisez l’enregistrement du moyen de paiement et les prélèvements futurs indiqués dans votre échéancier.'
   )
 
   appendInitialPaymentLineItems(parameters, quote.items)
@@ -196,6 +205,10 @@ export async function createStripeCheckoutSession({
     // stockage de commandes, jamais dans les métadonnées Stripe.
     enrollment,
     scheduleStatus: quote.items.some(
+      (item) => item.paymentSchedule.manualPayments?.length > 0
+    )
+      ? 'awaiting_group_confirmation'
+      : quote.items.some(
       (item) => item.paymentSchedule.futurePayments.length > 0
     )
       ? 'awaiting_initial_payment'

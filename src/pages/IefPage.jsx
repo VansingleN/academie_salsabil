@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import houseImage from '../images/house_oilpainting.webp'
 import './IefPage.css'
 
@@ -36,24 +36,22 @@ const services = [
 ]
 
 function IefPage() {
-  const navigate = useNavigate()
-
   return (
     <main className="ief-page">
       <section className="ief-hero">
         <div className="ief-hero-content">
-          <button type="button" className="ief-back" onClick={() => navigate('/')}>
+          <Link className="ief-back" to="/">
             Retour à l'accueil
-          </button>
+          </Link>
           <span>Instruction en famille</span>
           <h1>Construire un projet IEF serein et structuré</h1>
           <p>
             De la préparation du dossier à l'organisation pédagogique quotidienne,
             l'Académie Salsabil accompagne les familles avec méthode, écoute et clarté.
           </p>
-          <button type="button" className="ief-hero-cta" onClick={() => navigate('/contact')}>
+          <Link className="ief-hero-cta" to="/contact">
             Présenter mon projet
-          </button>
+          </Link>
         </div>
 
         <div className="ief-hero-visual">
@@ -105,9 +103,9 @@ function IefPage() {
           Nous faisons le point sur votre projet, vos besoins et vos priorités afin de
           vous orienter vers la formule la plus adaptée.
         </p>
-        <button type="button" onClick={() => navigate('/contact')}>
+        <Link to="/contact">
           Contacter l'équipe
-        </button>
+        </Link>
       </section>
     </main>
   )

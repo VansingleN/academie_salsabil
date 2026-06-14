@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import classOilPainting from '../images/class_oilpainting.webp'
 import homeworksImage from '../images/homeworks.webp'
 import schoolImage from '../images/school_oilpainting.webp'
@@ -131,7 +131,6 @@ const courseLevels = [
 function OnlineCourses() {
   const [activeTab, setActiveTab] = useState(offers[0].tab)
   const activeOffer = offers.find((offer) => offer.tab === activeTab) ?? offers[0]
-  const navigate = useNavigate()
 
   return (
     <section className="online-courses" aria-labelledby="online-courses-title">
@@ -173,28 +172,30 @@ function OnlineCourses() {
             {activeOffer.tab === 'Cursus complet' ? (
               <div className="online-courses-level-actions" aria-label="Choisir un cursus par niveau">
                 {courseLevels.map((level) => (
-                  <button
+                  <Link
                     className="online-courses-level-cta"
-                    type="button"
                     key={level.path}
-                    onClick={() => navigate(level.path)}
+                    to={level.path}
                   >
                     {level.name}
-                  </button>
+                  </Link>
                 ))}
               </div>
             ) : (
-              <button
+              <Link
                 className="online-courses-cta"
-                type="button"
-                onClick={() => navigate(
+                to={
                   activeOffer.tab === 'Instruction en famille'
                     ? '/instruction-en-famille'
+                    : activeOffer.tab === 'Soutien scolaire'
+                      ? '/soutien-scolaire'
                     : '/contact'
-                )}
+                }
               >
-                Je me renseigne
-              </button>
+                {activeOffer.tab === 'Soutien scolaire'
+                  ? 'Découvrir le soutien scolaire'
+                  : 'Je me renseigne'}
+              </Link>
             )}
           </div>
 
@@ -207,7 +208,18 @@ function OnlineCourses() {
             </ul>
 
             <div className="online-courses-visual">
-              <img src={activeOffer.image} alt={activeOffer.imageAlt} />
+              {offers.map((offer, index) => (
+                <img
+                  key={offer.tab}
+                  className={activeOffer.tab === offer.tab ? 'online-courses-image--active' : ''}
+                  src={offer.image}
+                  alt={activeOffer.tab === offer.tab ? offer.imageAlt : ''}
+                  aria-hidden={activeOffer.tab !== offer.tab}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                />
+              ))}
             </div>
           </aside>
         </div>

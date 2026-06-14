@@ -57,6 +57,14 @@ assert.equal(
   'false'
 )
 assert.equal(
+  monthlyParameters.parameters.get('success_url'),
+  'https://academie-salsabil.netlify.app/paiement/succes?session_id={CHECKOUT_SESSION_ID}'
+)
+assert.equal(
+  monthlyParameters.parameters.get('cancel_url'),
+  'https://academie-salsabil.netlify.app/paiement/annule'
+)
+assert.equal(
   monthlyParameters.parameters.has('line_items[0][price_data][recurring][interval]'),
   false
 )
@@ -82,6 +90,44 @@ assert.equal(
 assert.equal(
   annualParameters.parameters.get('payment_intent_data[metadata][order_id]'),
   'order_preview'
+)
+
+const groupedSummerCampQuote = createCartQuote({
+  items: [{
+    cartItemId: 'checkout-summer-camp-grouped',
+    offerId: 'summerCamp-primary-groupes-doux-deux-semaines',
+    selections: {
+      billingCountry: 'FR',
+      workshop: 'academiques'
+    }
+  }]
+})
+const groupedSummerCampParameters = buildCheckoutParameters(
+  groupedSummerCampQuote,
+  'https://academie-salsabil.netlify.app'
+)
+
+assert.equal(
+  groupedSummerCampParameters.parameters.get(
+    'line_items[0][price_data][unit_amount]'
+  ),
+  '2000'
+)
+assert.equal(
+  groupedSummerCampParameters.parameters.has(
+    'payment_intent_data[setup_future_usage]'
+  ),
+  false
+)
+assert.match(
+  groupedSummerCampParameters.parameters.get(
+    'line_items[0][price_data][product_data][name]'
+  ),
+  /acompte de pré-réservation/
+)
+assert.match(
+  groupedSummerCampParameters.parameters.get('custom_text[submit][message]'),
+  /solde sera demandé par lien sécurisé/
 )
 
 let capturedRequest

@@ -69,10 +69,12 @@ adresses, dates de naissance et informations pédagogiques ne sont jamais copié
 dans les métadonnées Stripe. Stripe reçoit uniquement les références techniques
 de commande, d'offre et d'échéancier.
 
-Avant un passage en paiement réel, une politique de conservation, de suppression
-et d'accès interne devra être définie pour ces données personnelles. Netlify
-Blobs reste ici un stockage serveur temporaire, pas encore un outil métier
-d'administration des dossiers.
+La politique technique de conservation et de suppression est définie dans
+`docs/data-retention-policy.md`. Les commandes restent exclues de la purge
+automatique : les données pédagogiques feront l'objet d'une revue manuelle,
+tandis que les preuves contractuelles et comptables seront conservées selon
+leurs obligations propres. Netlify Blobs reste ici un stockage serveur
+transitoire, pas un système d'archivage légal définitif.
 
 ## Fichiers importants
 

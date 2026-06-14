@@ -1,6 +1,10 @@
-import { useNavigate } from 'react-router-dom'
-import levelsTreeImage from '../images/levels_tree_transparent.png'
+import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import levelBannerImage from '../images/banner_levels.webp'
+import levelsTreeImage from '../images/levels_tree_transparent.webp'
 import './LevelTree.css'
+
+let levelBannerPreload
 
 const levels = [
   {
@@ -30,7 +34,16 @@ const levels = [
 ]
 
 function LevelTree() {
-  const navigate = useNavigate()
+  useEffect(() => {
+    if (levelBannerPreload) {
+      return
+    }
+
+    levelBannerPreload = new Image()
+    levelBannerPreload.fetchPriority = 'high'
+    levelBannerPreload.src = levelBannerImage
+    levelBannerPreload.decode?.().catch(() => {})
+  }, [])
 
   return (
     <div className="level-tree">
@@ -43,17 +56,24 @@ function LevelTree() {
         </div>
 
         {levels.map((level) => (
-          <button
+          <span
+            className={`level-tree-leaf-backdrop level-tree-leaf--${level.position}`}
+            aria-hidden="true"
+            key={`backdrop-${level.name}`}
+          />
+        ))}
+
+        {levels.map((level) => (
+          <Link
             className={`level-tree-leaf level-tree-leaf--${level.position}`}
-            type="button"
             key={level.name}
+            to={level.path}
             aria-label={`Découvrir le niveau ${level.name}`}
-            onClick={() => navigate(level.path)}
           >
             <span className="level-tree-sr-only">
               {level.number} - {level.name}
             </span>
-          </button>
+          </Link>
         ))}
       </div>
     </div>

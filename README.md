@@ -31,6 +31,7 @@ La plateforme comprend actuellement :
 - des reçus d'envoi idempotents conservés avec les commandes.
 - un adaptateur Brevo isolé, testé et désactivé par défaut ;
 - une liste blanche obligatoire pour les futurs envois de recette.
+- un enregistrement serveur et un tableau privé pour les demandes de soutien.
 
 ## Changelog du prochain déploiement
 
@@ -114,6 +115,10 @@ npm run test:schedule
 npm run test:enrollment
 npm run test:emails
 npm run test:brevo
+npm run test:support-request
+npm run test:contact-message
+npm run test:form-protection
+npm run test:order-admin
 npm run preview:emails
 ```
 
@@ -122,3 +127,5 @@ Le détail historique des changements reste disponible dans
 [docs/payment-architecture.md](./docs/payment-architecture.md).
 Les règles commerciales validées sont consignées dans
 [docs/school-billing-rules.md](./docs/school-billing-rules.md).
+Les dépendances d'hébergement et la procédure de migration sont décrites dans
+[docs/architecture-et-migration.md](./docs/architecture-et-migration.md).

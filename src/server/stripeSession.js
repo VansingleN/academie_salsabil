@@ -122,7 +122,7 @@ export async function createCustomerPortalSession({
 
   const parameters = new URLSearchParams()
   parameters.set('customer', customerId)
-  parameters.set('return_url', `${siteUrl.replace(/\/+$/, '')}/#/panier`)
+  parameters.set('return_url', `${siteUrl.replace(/\/+$/, '')}/panier`)
 
   const portal = await requestStripe({
     path: '/billing_portal/sessions',

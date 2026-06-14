@@ -4,7 +4,8 @@ import { cartQuotePlugin } from './vite.cart-quote-plugin'
 
 // https://vite.dev/config/
 export default defineConfig({
-  // GitHub Pages conserve son sous-chemin ; Netlify publie le site à la racine.
-  base: process.env.NETLIFY ? '/' : '/academie_salsabil/',
+  // Le développement local et Netlify utilisent la racine. Le sous-chemin
+  // GitHub Pages reste disponible uniquement pour un build explicitement dédié.
+  base: process.env.GITHUB_PAGES ? '/academie_salsabil/' : '/',
   plugins: [react(), cartQuotePlugin()],
 })

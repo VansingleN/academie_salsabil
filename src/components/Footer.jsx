@@ -1,27 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Logo from './Logo'
 import './Footer.css'
 
 function Footer() {
   const currentYear = new Date().getFullYear()
-  const navigate = useNavigate()
-
-  const handleContactClick = () => {
-    navigate('/contact')
-  }
-
-  const handleHomeClick = () => {
-    navigate('/')
-  }
-
   return (
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-main">
           <div className="footer-brand">
-            <button type="button" className="footer-logo-button" onClick={handleHomeClick}>
+            <Link to="/" className="footer-logo-button" aria-label="Retour à l’accueil">
               <Logo className="footer-logo" />
-            </button>
+            </Link>
             <p>
               Un accompagnement scolaire attentif, structuré et bienveillant, de la
               maternelle au lycée.
@@ -30,10 +20,11 @@ function Footer() {
 
           <nav className="footer-navigation" aria-label="Navigation de pied de page">
             <h2>Navigation</h2>
-            <Link to="/#method">Notre méthode</Link>
+            <Link to="/a-propos#method">Notre méthode</Link>
             <Link to="/#online-courses-title">Nos solutions</Link>
-            <Link to="/#faq">Questions fréquentes</Link>
-            <button type="button" onClick={handleContactClick}>Contact</button>
+            <Link to="/summer-camp">Summer Camp</Link>
+            <Link to="/contact#faq">Questions fréquentes</Link>
+            <Link to="/contact">Contact</Link>
           </nav>
 
           <div className="footer-contact">
@@ -63,8 +54,9 @@ function Footer() {
         <div className="footer-bottom">
           <p>© {currentYear} Académie Salsabil. Tous droits réservés.</p>
           <div>
-            <a href="#legal">Mentions légales</a>
-            <a href="#privacy">Confidentialité</a>
+            <Link to="/conditions-generales-de-vente">Conditions générales de vente</Link>
+            <Link to="/mentions-legales">Mentions légales</Link>
+            <Link to="/politique-de-confidentialite">Confidentialité</Link>
           </div>
         </div>
       </div>

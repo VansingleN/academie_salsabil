@@ -28,3 +28,11 @@ email-previews
 *.njsproj
 *.sln
 *.sw?
+
+# Local Netlify folder
+.netlify
+
+# Sauvegardes et anciennes variantes d'images conservées uniquement en local
+src/images/old_unused/
+src/images/*.old.*
+src/images/* - Copy.*

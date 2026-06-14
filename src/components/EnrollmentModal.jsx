@@ -21,7 +21,6 @@ function EnrollmentModal({
   onSubmit
 }) {
   const [values, setValues] = useState(() => getInitialValues(fields))
-  const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return undefined
@@ -55,8 +54,11 @@ function EnrollmentModal({
 
   const handleSubmit = (event) => {
     event.preventDefault()
+
+    // La fermeture intervient après l'ajout réussi afin que l'utilisateur
+    // puisse poursuivre ses achats sans refermer manuellement la modale.
     onSubmit(values)
-    setSubmitted(true)
+    onClose()
   }
 
   return createPortal(
@@ -101,7 +103,6 @@ function EnrollmentModal({
                     ...current,
                     [field.name]: event.target.value
                   }))
-                  setSubmitted(false)
                 }}
               >
                 <option value="" disabled>
@@ -190,11 +191,11 @@ function EnrollmentModal({
           </section>
 
           <button
-            className={`enrollment-modal-submit${submitted ? ' enrollment-modal-submit--success' : ''}`}
+            className="enrollment-modal-submit"
             type="submit"
-            disabled={submitted || !paymentSchedule}
+            disabled={!paymentSchedule}
           >
-            {submitted ? 'Ajouté au panier' : submitLabel}
+            {submitLabel}
           </button>
         </form>
       </section>

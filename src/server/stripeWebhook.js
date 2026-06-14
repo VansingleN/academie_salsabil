@@ -172,11 +172,20 @@ function applyEventToOrder(order, event, processedAt) {
       const hasFuturePayments = order.items?.some(
         (item) => item.paymentSchedule?.futurePayments?.length > 0
       )
+      const hasManualBalance = order.items?.some(
+        (item) => item.paymentSchedule?.manualPayments?.length > 0
+      )
 
       return {
         ...nextOrder,
         status: isPaid
-          ? (hasFuturePayments ? 'initial_payment_paid' : 'paid')
+          ? (
+              hasManualBalance
+                ? 'deposit_paid'
+                : hasFuturePayments
+                  ? 'initial_payment_paid'
+                  : 'paid'
+            )
           : 'checkout_completed',
         paymentStatus: object.payment_status ?? order.paymentStatus,
         checkoutSessionId: object.id,

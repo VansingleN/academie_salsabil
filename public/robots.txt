@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /panier
+Disallow: /paiement/
+
+Sitemap: https://academie-salsabil.netlify.app/sitemap.xml

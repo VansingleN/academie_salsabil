@@ -33,6 +33,8 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
   const [selections, setSelections] = useState(item.selections)
   const resolvedItem = resolveCartItem({ ...item, selections })
   const isValid = validateOfferSelections(offer, selections)
+  const manualBalance = quotedItem?.paymentSchedule?.manualPayments?.[0]
+  const hasDeposit = Boolean(manualBalance)
 
   const handleSelectionChange = (fieldName, value) => {
     const nextSelections = { ...selections, [fieldName]: value }
@@ -59,7 +61,29 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
     onChange(item.cartItemId, nextSelections, offerId)
   }
 
-  if (!resolvedItem) return null
+  if (!resolvedItem) {
+    return (
+      <article className="cart-item cart-item--unavailable">
+        <header className="cart-item-header">
+          <div>
+            <span>Article à actualiser</span>
+            <h2>Cette offre n’est plus disponible</h2>
+            <p>Elle provient d’une ancienne version du catalogue.</p>
+          </div>
+        </header>
+        <p className="cart-item-error">
+          Supprimez cet article, puis sélectionnez à nouveau votre offre afin de
+          bénéficier des tarifs et modalités actuels.
+        </p>
+        <footer>
+          <Link to="/summer-camp">Voir les offres actuelles</Link>
+          <button type="button" onClick={() => onRemove(item.cartItemId)}>
+            Supprimer
+          </button>
+        </footer>
+      </article>
+    )
+  }
 
   return (
     <article className="cart-item">
@@ -73,39 +97,43 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
       </header>
 
       <div className="cart-item-fields">
-        <label htmlFor={`${item.cartItemId}-grade`}>
-          <span>Classe</span>
-          <select
-            id={`${item.cartItemId}-grade`}
-            name="grade"
-            value={offer.gradeId}
-            onChange={(event) => handleOfferChange(event.target.value, offer.planId)}
-          >
-            {gradeChoices.map((choice) => (
-              <option
-                key={choice.value}
-                value={choice.value}
-                disabled={choice.disabled}
+        {offer.offerType !== 'summerCamp' && (
+          <>
+            <label htmlFor={`${item.cartItemId}-grade`}>
+              <span>Classe</span>
+              <select
+                id={`${item.cartItemId}-grade`}
+                name="grade"
+                value={offer.gradeId}
+                onChange={(event) => handleOfferChange(event.target.value, offer.planId)}
               >
-                {choice.label}
-              </option>
-            ))}
-          </select>
-        </label>
+                {gradeChoices.map((choice) => (
+                  <option
+                    key={choice.value}
+                    value={choice.value}
+                    disabled={choice.disabled}
+                  >
+                    {choice.label}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-        <label htmlFor={`${item.cartItemId}-plan`}>
-          <span>Formule</span>
-          <select
-            id={`${item.cartItemId}-plan`}
-            name="plan"
-            value={offer.planId}
-            onChange={(event) => handleOfferChange(offer.gradeId, event.target.value)}
-          >
-            {planChoices.map((choice) => (
-              <option key={choice.value} value={choice.value}>{choice.label}</option>
-            ))}
-          </select>
-        </label>
+            <label htmlFor={`${item.cartItemId}-plan`}>
+              <span>Formule</span>
+              <select
+                id={`${item.cartItemId}-plan`}
+                name="plan"
+                value={offer.planId}
+                onChange={(event) => handleOfferChange(offer.gradeId, event.target.value)}
+              >
+                {planChoices.map((choice) => (
+                  <option key={choice.value} value={choice.value}>{choice.label}</option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
 
         {fields.map((field) => {
           const fieldId = `${item.cartItemId}-${field.name}`
@@ -140,7 +168,10 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
       </div>
 
       <div className="cart-item-breakdown">
-        <span>Tarif de la formule <strong>{formatEuro(resolvedItem.amount)}</strong></span>
+        <span>
+          {offer.offerType === 'summerCamp' ? 'Prix du séjour' : 'Tarif de la formule'}
+          {' '}<strong>{formatEuro(resolvedItem.amount)}</strong>
+        </span>
         {resolvedItem.optionAmount > 0 && (
           <span>Options <strong>+ {formatEuro(resolvedItem.optionAmount)}</strong></span>
         )}
@@ -151,7 +182,8 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
         <section className="cart-item-schedule">
           <header>
             <div>
-              <span>Premier paiement</span>
+              {hasDeposit && <span>Acompte de pré-réservation</span>}
+              {!hasDeposit && <span>Premier paiement</span>}
               <strong>
                 {formatEuro(
                   quotedItem.paymentSchedule.totals.firstPaymentExcludingTax
@@ -159,9 +191,15 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
               </strong>
             </div>
             <small>
-              Encaissé à l’inscription · couvre du{' '}
-              {formatDate(quotedItem.paymentSchedule.firstPayment.periodStart)} au{' '}
-              {formatDate(quotedItem.paymentSchedule.firstPayment.periodEnd)}
+              {hasDeposit
+                ? 'Réglé lors de la pré-réservation et déduit du prix final.'
+                : (
+                  <>
+                    Encaissé à l’inscription · couvre du{' '}
+                    {formatDate(quotedItem.paymentSchedule.firstPayment.periodStart)} au{' '}
+                    {formatDate(quotedItem.paymentSchedule.firstPayment.periodEnd)}
+                  </>
+                )}
             </small>
           </header>
 
@@ -189,6 +227,19 @@ function CartItemEditor({ item, quotedItem, onChange, onRemove }) {
                 ))}
               </ul>
             </details>
+          )}
+
+          {manualBalance && (
+            <div className="cart-item-manual-balance">
+              <p>
+                <span>Solde après confirmation du groupe</span>
+                <strong>{formatEuro(manualBalance.subtotalExcludingTax)} HT</strong>
+              </p>
+              <small>
+                Un lien de paiement sécurisé sera envoyé après confirmation du
+                groupe. Règlement sous 72 h, avec un rappel après 48 h.
+              </small>
+            </div>
           )}
         </section>
       )}
@@ -314,6 +365,9 @@ function CartPage() {
     ? new Set(serverQuote.items.map((item) => item.planId)).size
     : 0
   const hasMixedBillingPlans = quoteMatchesCart && billingPlanCount > 1
+  const hasManualBalances = quoteMatchesCart && serverQuote.items.some(
+    (item) => item.paymentSchedule.manualPayments?.length > 0
+  )
   const canStartCheckout = (
     displayedQuoteStatus === 'success'
     && quoteMatchesCart
@@ -370,11 +424,11 @@ function CartPage() {
             {quoteMatchesCart ? (
               <>
                 <p>
-                  <span>Premier paiement</span>
+                  <span>{hasManualBalances ? 'Acompte à régler' : 'Premier paiement'}</span>
                   <strong>{formatEuro(serverQuote.paymentSummary.firstPaymentExcludingTax)} HT</strong>
                 </p>
                 <p>
-                  <span>Échéances futures</span>
+                  <span>{hasManualBalances ? 'Solde ultérieur' : 'Échéances futures'}</span>
                   <strong>{formatEuro(serverQuote.paymentSummary.futurePaymentsExcludingTax)} HT</strong>
                 </p>
                 <p className="cart-summary-contract-total">
@@ -392,6 +446,9 @@ function CartPage() {
                 )}
                 {displayedTotals.annual && (
                   <p><span>Tarif annuel</span><strong>{formatEuro(displayedTotals.annual)} HT</strong></p>
+                )}
+                {displayedTotals.summerCamp && (
+                  <p><span>Summer Camp</span><strong>{formatEuro(displayedTotals.summerCamp)} HT</strong></p>
                 )}
               </>
             )}
@@ -421,10 +478,23 @@ function CartPage() {
           <div className="cart-summary-note">
             <strong>Checkout en mode test</strong>
             <p>
-              Aucune carte réelle ne sera débitée. Checkout encaisse le premier
-              paiement test ; les échéances futures sont créées seulement après
-              confirmation du webhook. Les taxes restent désactivées tant que
-              l’entité juridique n’est pas configurée.
+              {hasManualBalances
+                ? (
+                  <>
+                    Aucune carte réelle ne sera débitée. Checkout encaisse uniquement
+                    l’acompte test. Le solde sera demandé séparément après confirmation
+                    du groupe. Les taxes restent désactivées tant que l’entité juridique
+                    n’est pas configurée.
+                  </>
+                )
+                : (
+                  <>
+                    Aucune carte réelle ne sera débitée. Checkout encaisse le premier
+                    paiement test ; les échéances futures sont créées seulement après
+                    confirmation du webhook. Les taxes restent désactivées tant que
+                    l’entité juridique n’est pas configurée.
+                  </>
+                )}
             </p>
           </div>
 

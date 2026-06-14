@@ -35,6 +35,12 @@ export function createMemoryOrderRepository() {
       return clone(orders.get(orderId))
     },
 
+    async listOrders() {
+      return [...orders.values()]
+        .map(clone)
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+    },
+
     async findOrderByCheckoutSession(sessionId) {
       const orderId = checkoutSessions.get(sessionId)
       return orderId ? clone(orders.get(orderId)) : null
@@ -127,6 +133,17 @@ export function createNetlifyBlobsOrderRepository({
 
     async getOrder(orderId) {
       return getJson(createBlobKey('orders', orderId))
+    },
+
+    async listOrders() {
+      const result = await getActiveStore().list({ prefix: 'orders/' })
+      const orders = await Promise.all(
+        result.blobs.map(({ key }) => getJson(key))
+      )
+
+      return orders
+        .filter(Boolean)
+        .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
     },
 
     async findOrderByCheckoutSession(sessionId) {

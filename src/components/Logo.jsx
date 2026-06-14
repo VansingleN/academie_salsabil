@@ -1,4 +1,4 @@
-import logo from '../images/logo.jpg'
+import logo from '../images/logo.webp'
 import './Logo.css'
 
 function Logo({ className = "" }) {

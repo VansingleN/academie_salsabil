@@ -1,6 +1,11 @@
 import { buildPricingPlans } from '../utils/pricing.js'
 import { billingCountryField } from './countries.js'
 import { isPlanAvailable } from '../server/paymentSchedule.js'
+import {
+  getSummerCampDeposit,
+  getSummerCampPrice,
+  summerCampPricing
+} from './summerCampPricing.js'
 
 // Ces paramètres décrivent le futur mode de facturation Stripe. Les nombres
 // d'échéances restent volontairement configurables tant que les règles ne sont pas figées.
@@ -114,6 +119,78 @@ const languageChoices = [
   { value: 'arabic', label: 'Arabe' }
 ]
 
+const summerCampWorkshopChoices = [
+  { value: 'academiques', label: 'Ateliers académiques' },
+  { value: 'religieux', label: 'Ateliers religieux' }
+]
+
+function getSummerCampOffer(offerId) {
+  const offerMatch = /^summerCamp-(primary|adolescents)-(personnalises|groupes)-(doux|equilibre)-(une-semaine|deux-semaines|un-mois)$/.exec(
+    offerId
+  )
+
+  if (!offerMatch) return null
+
+  const [, levelId, attendanceModeId, programId, durationId] = offerMatch
+  const attendanceMode = summerCampPricing.attendanceModes[attendanceModeId]
+  const program = summerCampPricing.programs[programId]
+  const duration = summerCampPricing.durations[durationId]
+
+  if (
+    !attendanceMode
+    || !program
+    || !duration
+    || !attendanceMode.programIds.includes(programId)
+    || !attendanceMode.durationIds.includes(durationId)
+  ) {
+    return null
+  }
+
+  const level = levelId === 'adolescents'
+    ? {
+        path: '/summer-camp?niveau=college',
+        gradeId: 'adolescents',
+        grade: 'Adolescents'
+      }
+    : {
+        path: '/summer-camp?niveau=primaire',
+        gradeId: 'primary',
+        grade: 'Jeunes pousses'
+      }
+  const depositAmount = getSummerCampDeposit(attendanceModeId, durationId)
+
+  return {
+    id: offerId,
+    offerType: 'summerCamp',
+    curriculumId: 'summerCamp',
+    curriculum: 'Summer Camp',
+    curriculumPath: level.path,
+    gradeId: level.gradeId,
+    grade: level.grade,
+    gradeLongLabel: `${level.grade} · ${attendanceMode.label} · ${program.label}`,
+    planId: 'summerCamp',
+    plan: 'Paiement unique',
+    period: `HT · ${duration.label.toLowerCase()}`,
+    amount: getSummerCampPrice(attendanceModeId, programId, durationId),
+    applicationFee: { enabled: false, amount: 0 },
+    deposit: {
+      enabled: depositAmount > 0,
+      amount: depositAmount,
+      paymentMode: depositAmount > 0 ? 'group_pre_reservation' : null,
+      deductedFromTotal: depositAmount > 0
+    },
+    billingMode: 'one_time',
+    interval: null,
+    intervalCount: null,
+    installmentCount: 1,
+    summerCampLevelId: levelId,
+    programId,
+    attendanceModeId,
+    durationId,
+    servicePeriodLabel: duration.label
+  }
+}
+
 export function getOfferId(curriculumId, gradeId, planId) {
   return `${curriculumId}-${gradeId}-${planId}`
 }
@@ -149,6 +226,9 @@ export function getOptionPrice(curriculumId, optionId, planId) {
 // Reconstitue une offre complète à partir du seul identifiant stocké dans le panier.
 // Ainsi, aucun montant provenant de localStorage n'est considéré comme fiable.
 export function getOffer(offerId) {
+  const summerCampOffer = getSummerCampOffer(offerId)
+  if (summerCampOffer) return summerCampOffer
+
   const match = Object.entries(curricula).find(([curriculumId, curriculum]) =>
     Object.keys(curriculum.grades).some((gradeId) =>
       Object.keys(planLabels).some((planId) =>
@@ -194,6 +274,18 @@ export function getOffer(offerId) {
 // Définit dynamiquement les champs modifiables selon le cursus et la classe.
 export function getOfferFields(offer) {
   if (!offer) return []
+
+  if (offer.offerType === 'summerCamp') {
+    return [
+      billingCountryField,
+      {
+        name: 'workshop',
+        label: 'Ateliers',
+        required: true,
+        choices: summerCampWorkshopChoices
+      }
+    ]
+  }
 
   const fields = [
     billingCountryField,
@@ -263,6 +355,8 @@ export function normalizeOfferSelections(offer, selections = {}) {
 }
 
 function getOptionAmount(offer, selections) {
+  if (offer.offerType === 'summerCamp') return 0
+
   const options = curricula[offer.curriculumId].options ?? {}
 
   return Object.entries(options).reduce((total, [optionId, option]) => {
@@ -322,7 +416,7 @@ export function validateOfferSelections(
 
   return requiredFieldsAreFilled
     && languagesAreDifferent
-    && isPlanAvailable(offer.planId, enrollmentDate)
+    && (offer.offerType === 'summerCamp' || isPlanAvailable(offer.planId, enrollmentDate))
 }
 
 export { curricula as offerCatalog }

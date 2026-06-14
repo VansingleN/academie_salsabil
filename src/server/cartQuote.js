@@ -114,6 +114,10 @@ function buildPaymentSummary(items) {
       item.paymentSchedule.totals.firstPaymentExcludingTax
     currentSummary.futurePaymentsExcludingTax +=
       item.paymentSchedule.totals.futurePaymentsExcludingTax
+      + item.paymentSchedule.manualPayments.reduce(
+        (total, payment) => total + payment.subtotalExcludingTax,
+        0
+      )
     currentSummary.contractTotalExcludingTax +=
       item.paymentSchedule.totals.contractTotalExcludingTax
     currentSummary.installmentCount += item.paymentSchedule.installmentCount
@@ -204,6 +208,7 @@ export function createCartQuote(payload, { enrollmentDate = new Date() } = {}) {
       interval: item.interval,
       intervalCount: item.intervalCount,
       installmentCount: item.installmentCount,
+      summerCampLevelId: item.summerCampLevelId ?? null,
       baseAmount: item.amount,
       optionAmount: item.optionAmount,
       totalAmount: item.totalAmount,
@@ -211,6 +216,7 @@ export function createCartQuote(payload, { enrollmentDate = new Date() } = {}) {
       deposit: item.deposit,
       selectedOptions: item.selectedOptions,
       billingCountry: item.selections.billingCountry,
+      manualPayments: item.paymentSchedule.manualPayments,
       paymentSchedule: item.paymentSchedule
     })),
     // groupedTotals conserve le montant normal d'une période pour les résumés

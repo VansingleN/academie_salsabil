@@ -36,3 +36,6 @@ email-previews
 src/images/old_unused/
 src/images/*.old.*
 src/images/* - Copy.*
+
+# Dossier de diagnostic personnel hors projet
+diagnostic-backup/
